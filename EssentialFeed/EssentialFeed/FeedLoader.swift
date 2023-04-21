@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum Result {
+enum LoadFeedResult {
   case success([FeedItem])
   case error(Error)
  }
 
 protocol FeedLoader
 {
-    func load(completion: () -> Void)
+    func load(completion: (LoadFeedResult) -> Void)
 }
