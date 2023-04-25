@@ -57,14 +57,20 @@ final class RemoteFeedLoaderTest: XCTestCase {
     func test_deliery_ErrorOn200HttpResponseError() {
         let (sut,  client) = makeSUT()
       
-        var captureError = [RemoteFeedLoader.Error]()
-      
-        sut.load(completion: { error in
-            captureError.append(error) })
        
-        client.complete(with: 400)
+        [400, 101, 300].enumerated().forEach { index,statusCode in
+            
+            
+            var captureError = [RemoteFeedLoader.Error]()
+            
+            sut.load(completion: { error in
+                captureError.append(error) })
+            client.complete(with: statusCode, at:index)
+            XCTAssertEqual(captureError,[.invaildData])
+        }
+       
         
-        XCTAssertEqual(captureError,[.invaildData])
+       
         
     }
     
@@ -77,27 +83,26 @@ final class RemoteFeedLoaderTest: XCTestCase {
     }
     
     private class HTTPClientSpy: Httpclient {
-        var completionHander = [RemoteFeedLoader.Error] ()
        
-
-        private var messages = [(urls: URL, complection: (Error?, HTTPURLResponse?) -> Void)]()
-         
+        private var messages = [(urls: URL, complection: (HTTPClientResult) -> Void)]()
+      
         var requestUrls :[URL] {
             return messages.map { $0.urls }
         }
-        func get(from url: URL, completion: @escaping (Error?, HTTPURLResponse?) -> Void) {
+       
+        func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
             messages.append((url, completion))
         }
         
         func complete(with error:Error,at index:Int = 0) {
-            messages[index].complection(error, nil)
+            messages[index].complection(.failour(error))
         }
         
         func complete(with statusCode:Int,at index:Int = 0) {
             let response = HTTPURLResponse(url: requestUrls[index],
                                            statusCode: statusCode,
-                                           httpVersion: nil, headerFields: nil)
-            messages[index].complection(nil, response)
+                                           httpVersion: nil, headerFields: nil)!
+            messages[index].complection(.success(response))
             
         }
     }
