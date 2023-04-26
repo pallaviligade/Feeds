@@ -75,6 +75,45 @@ final class RemoteFeedLoaderTest: XCTestCase {
             let emptyJson = Data(bytes: "{\"item\":[]}" .utf8)
             client.complete(withstatusCode: 200,data: emptyJson)
         }
+        
+        func test_loaditemAfter_Recvied200Response()
+        {
+            let (sut, client) = makeSUT()
+
+                    let item1 = FeedItem(
+                        id: UUID(),
+                        description: nil,
+                        location: nil,
+                        imageURL: URL(string: "http://a-url.com")!)
+
+                    let item1JSON = [
+                        "id": item1.id.uuidString,
+                        "image": item1.imageURL.absoluteString
+                    ]
+
+                    let item2 = FeedItem(
+                        id: UUID(),
+                        description: "a description",
+                        location: "a location",
+                        imageURL: URL(string: "http://another-url.com")!)
+
+                    let item2JSON = [
+                        "id": item2.id.uuidString,
+                        "description": item2.description,
+                        "location": item2.location,
+                        "image": item2.imageURL.absoluteString
+                    ]
+
+                    let itemsJSON = [
+                        "items": [item1JSON, item2JSON]
+                    ]
+
+            expact(sut, toCompleteWithResult: .success([item1,item2]), when: {
+                let json = try! JSONSerialization.data(withJSONObject: itemsJSON)
+                client.complete(withstatusCode: 200,data: json)
+            })
+            
+        }
 
        
 
@@ -99,7 +138,7 @@ final class RemoteFeedLoaderTest: XCTestCase {
         return (sut, client)
     }
     
-    private class HTTPClientSpy: Httpclient {
+     private class HTTPClientSpy: Httpclient {
        
         private var messages = [(urls: URL, complection: (HTTPClientResult) -> Void)]()
       
