@@ -56,6 +56,20 @@ public final class RemoteFeedLoader
 }
 
 private class FeedMapper {
+    private struct Root:Decodable {
+        var items: [Item]
+    }
+
+    private struct Item:Decodable {
+          let id: UUID
+           let description: String?
+           let location: String?
+            let image: URL
+        
+        var item: FeedItem {
+            return FeedItem(id: id, description: description, location: location, imageURL: image)
+        }
+    }
     static func map(_ data: Data, _ response: HTTPURLResponse) throws ->  [FeedItem] {
         guard response.statusCode == 200 else {
             throw RemoteFeedLoader.Error.invaildData
@@ -64,17 +78,4 @@ private class FeedMapper {
     }
 }
 
-private struct Root:Decodable {
-    var items: [Item]
-}
 
-private struct Item:Decodable {
-      let id: UUID
-       let description: String?
-       let location: String?
-        let image: URL
-    
-    var item: FeedItem {
-        return FeedItem(id: id, description: description, location: location, imageURL: image)
-    }
-}
