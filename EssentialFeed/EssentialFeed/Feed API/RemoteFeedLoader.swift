@@ -24,9 +24,9 @@ public final class RemoteFeedLoader
     public enum Error: Swift.Error {
         case connectivity
         case invaildData
-        
     }
-     enum Result {
+    
+    public enum Result: Equatable {
         case success([FeedItem])
         case failure(Error)
     }
@@ -35,14 +35,14 @@ public final class RemoteFeedLoader
         self.client = client
         self.url = url
     }
-    public func load(completion: @escaping(Error) -> Void) {
+    public func load(completion: @escaping(Result) -> Void) {
         self.client.get(from: url) { result in
             switch result {
                 
             case .success(_):
-                completion(.invaildData)
+                completion(.failure(.invaildData))
             case .failour(_):
-                completion(.connectivity)
+                completion(.failure(.connectivity))
             }
            
         }
