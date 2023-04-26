@@ -95,11 +95,13 @@ final class RemoteFeedLoaderTest: XCTestCase {
         
         
         
-        let itemsJSON =
-        [item1.model, item2.model]
+        let itemsJSON = ["items":
+        [item1.json, item2.json]]
+        
+        let item = [item1.model, item2.model]
         
         
-        expact(sut, toCompleteWithResult: .success(itemsJSON), when: {
+        expact(sut, toCompleteWithResult: .success(item), when: {
             let json = try! JSONSerialization.data(withJSONObject: itemsJSON)
             client.complete(withstatusCode: 200,data: json)
         })
