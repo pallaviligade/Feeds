@@ -9,7 +9,7 @@ import Foundation
 
 
 public enum HTTPClientResult {
-    case success(HTTPURLResponse)
+    case success(Data,HTTPURLResponse)
     case failour(Error)
 }
 public protocol Httpclient {
@@ -35,18 +35,25 @@ public final class RemoteFeedLoader
         self.client = client
         self.url = url
     }
-    public func load(completion: @escaping(Result) -> Void) {
+    
+    public func load(completion: @escaping(Result) -> Void)
+    {
         self.client.get(from: url) { result in
             switch result {
-                
-            case .success(_):
-                completion(.failure(.invaildData))
-            case .failour(_):
+            case let .success(data,_):
+                if let _ = try? JSONSerialization.jsonObject(with: data){
+                    completion(.success([]))
+                }else {
+                    completion(.failure(.invaildData))
+                }
+            case .failour:
                 completion(.failure(.connectivity))
             }
-           
+
         }
     }
+    
+    
     
 }
 
