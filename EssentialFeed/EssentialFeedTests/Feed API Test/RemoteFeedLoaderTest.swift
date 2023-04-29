@@ -143,14 +143,35 @@ final class RemoteFeedLoaderTest: XCTestCase {
         
     }
     
-    private func expact(_ sut:RemoteFeedLoader, toCompleteWithResult  result: RemoteFeedLoader.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line) {
-        var captureError = [RemoteFeedLoader.Result]()
-        sut.load { error in
-            captureError.append(error)
+    private func expact(_ sut:RemoteFeedLoader, toCompleteWithResult  expectedResult: RemoteFeedLoader.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+       // var captureError = [RemoteFeedLoader.Result]()
+        
+//        sut.load { error in
+//            captureError.append(error)
+//        }
+        // below is pattern matching exmaple
+        
+        let exp = expectation(description: "wait for load completion")
+        
+        sut.load { recvivedResult in
+            switch (recvivedResult, expectedResult) {
+                
+            case let (.success(recvivedItem),  .success(expectItems)):
+                XCTAssertEqual(recvivedItem, expectItems, file: file,line: line)
+                
+            case let (.failure(recvivedError), .failure(expectedError)):
+                XCTAssertEqual(recvivedError, expectedError, file: file,line: line)
+                
+            default:
+                XCTFail("Expected \(expectedResult) and got \(recvivedResult) instead",file: file,line: line)
+                
+            }
+            exp.fulfill()
+            
         }
         action()
-        XCTAssertEqual(captureError, [result], file: file,line: line)
-        
+       
+        wait(for: [exp], timeout: 1.0)
     }
     
     

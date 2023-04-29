@@ -12,9 +12,9 @@ public enum LoadFeedResult<Error: Swift.Error> {
   case failure(Error)
  }
 
-extension LoadFeedResult:Equatable where Error: Equatable {
-    
-}
+//extension LoadFeedResult:Equatable where Error: Equatable { // This Generic
+//
+//}
 
 protocol FeedLoader
 {
