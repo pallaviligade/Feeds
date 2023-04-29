@@ -18,7 +18,7 @@ public final class RemoteFeedLoader: FeedLoader
         case invaildData
     }
     
-   public typealias Result = LoadFeedResult<Error>
+   public typealias Result = LoadFeedResult
     
 //    public enum Result: Equatable {
 //        case success([FeedItem])
@@ -38,7 +38,7 @@ public final class RemoteFeedLoader: FeedLoader
             case let .success(data, respose):
                 completion(FeedItemMapper.map(data, from: respose))
             case .failour:
-                completion(.failure(.connectivity))
+                completion(.failure(Error.connectivity))
             }
 
         }

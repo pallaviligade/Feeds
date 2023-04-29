@@ -44,7 +44,7 @@ final class RemoteFeedLoaderTest: XCTestCase {
     func test_deliery_ErrorOnClientError() {
         let (sut,  client) = makeSUT()
         
-        expact(sut, toCompleteWithResult: .failure(.connectivity)) {
+        expact(sut, toCompleteWithResult: failure(.connectivity)) {
             let error =  NSError(domain: "Test", code: 0) // This is client error
             client.complete(with:error)
         }
@@ -52,7 +52,7 @@ final class RemoteFeedLoaderTest: XCTestCase {
     func test_deliery_ErrorOn200HttpResponseError() {
         let (sut,  client) = makeSUT()
         [199,400, 101, 300].enumerated().forEach { index,statusCode in
-            expact(sut, toCompleteWithResult: .failure(.invaildData)) {
+            expact(sut, toCompleteWithResult: failure(.invaildData)) {
                 let jsondata = makeItemsJSON([])
                 client.complete(withstatusCode: statusCode, data: jsondata, at: index)
             }
@@ -62,7 +62,7 @@ final class RemoteFeedLoaderTest: XCTestCase {
     func test_delivery200Response_WithInvalidJson() {
         let (sut,  client) = makeSUT()
         
-        expact(sut, toCompleteWithResult: .failure(.invaildData)) {
+        expact(sut, toCompleteWithResult: failure(.invaildData)) {
             let invalidJson = Data(bytes:"invalid json".utf8)
             client.complete(withstatusCode: 200, data:invalidJson)
         }
@@ -160,7 +160,7 @@ final class RemoteFeedLoaderTest: XCTestCase {
                 XCTAssertEqual(recvivedItem, expectItems, file: file,line: line)
                 
             case let (.failure(recvivedError), .failure(expectedError)):
-                XCTAssertEqual(recvivedError, expectedError, file: file,line: line)
+                XCTAssertEqual(recvivedError as! RemoteFeedLoader.Error, expectedError as! RemoteFeedLoader.Error, file: file,line: line)
                 
             default:
                 XCTFail("Expected \(expectedResult) and got \(recvivedResult) instead",file: file,line: line)
@@ -176,6 +176,10 @@ final class RemoteFeedLoaderTest: XCTestCase {
     
     
     // MARK: - Helper
+    
+    private func failure(_ error: RemoteFeedLoader.Error) -> RemoteFeedLoader.Result {
+        return .failure(error)
+    }
     private func makeSUT(url: URL = URL(string: "https://some-uel.com")!, file: StaticString = #file, line: UInt = #line ) -> (sut:RemoteFeedLoader, client:HTTPClientSpy)
     {
         let client = HTTPClientSpy()
