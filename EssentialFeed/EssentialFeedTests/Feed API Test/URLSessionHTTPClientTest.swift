@@ -13,7 +13,7 @@ private class URLSessionHTTpClientSpy {
     
     private  let session: URLSession
     
-    init(session: URLSession) {
+    init(session: URLSession = .shared) {
         self.session = session
     }
     
@@ -32,27 +32,18 @@ private class URLSessionHTTpClientSpy {
 
 final class URLSessionHTTPClientTest : XCTestCase {
    
-    func test_getFromURl_resumeDataTaskFromUrl(){
-        let url = URL(string: "http://some-urls.com")!
-        
-        let session = URLSessionSpy() // Setup
-        let task = URLSessionDataSpy()
-        session.stub(url: url, task: task)
-        let sut = URLSessionHTTpClientSpy(session: session)
-        sut.get(from: url) { _ in }
-        
-        XCTAssertEqual(task.resumeCallCount, 1) // Expections
-    }
+   
     
     func test_getFromUrl_FailsOnRequestError() {
+       URLProtoclStub.startInterceptingRequest()
         let url = URL(string: "http://some-urls.com")!
         let error = NSError(domain: "any error", code: 1)
-        let session = URLSessionSpy() // Setup
-        session.stub(url: url, error: error)
+        URLProtoclStub.stub(url: url, error: error)
         
-        let sut = URLSessionHTTpClientSpy(session: session)
+        let sut = URLSessionHTTpClientSpy()
         
         let exp = expectation(description: "wait for result to  load")
+        
         sut.get(from: url) { result in
             switch result {
             case let .failour(recvied as NSError):
@@ -62,43 +53,58 @@ final class URLSessionHTTPClientTest : XCTestCase {
             }
             exp.fulfill()
         }
-        wait(for: [exp], timeout: 3.0)
+        wait(for: [exp], timeout: 1.0)
+        URLProtoclStub.stopInterceptingRequest()
     }
     
     // MARK: - helpers
-    private class URLSessionSpy: URLSession {
+    private class URLProtoclStub: URLProtocol {
         
-       private var stubs = [URL: stubList]()
+       private static var stubs = [URL: stubList]()
         
        private struct stubList {
-            let task: URLSessionDataTask
             let error: Error?
         }
         
-        func stub(url:URL,  task:  URLSessionDataTask = FakeSessionData(), error: Error? = nil) {
+       static func stub(url:URL, error: Error? = nil) {
         
-            stubs[url] = stubList(task: task, error: error)
+            stubs[url] = stubList(error: error)
+        }
+        static func stopInterceptingRequest()  {
+            URLProtoclStub.unregisterClass(URLProtoclStub.self)
+            stubs = [:]
+        }
+        
+        static func startInterceptingRequest() {
+            URLProtoclStub.registerClass(URLProtoclStub.self)
+        }
+        
+        override class func canInit(with request: URLRequest) -> Bool {
+            guard let url = request.url else { return false }
+            
+            return URLProtoclStub.stubs[url] != nil
+        }
+        
+        override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+            return request
+        }
+        
+        override func startLoading() {
+            guard let url = request.url, let stub = URLProtoclStub.stubs[url] else { return }
+            
+            if let error = stub.error {
+                client?.urlProtocol(self, didFailWithError: error)
+            }
+            client?.urlProtocolDidFinishLoading(self)
+        }
+        
+        override func stopLoading() {
             
         }
-        override func dataTask(with url: URL, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask
-        {
-            guard let stub = stubs[url] else {
-                fatalError("could not fnd \(url)")
-            }
-            completionHandler(nil ,nil , stub.error )
-            return stub.task
-        }
+       
         
     }
     
-    private class FakeSessionData: URLSessionDataTask {
-        override func resume() {}
-    }
-    private class URLSessionDataSpy: URLSessionDataTask {
-        var resumeCallCount = 0
-        override func resume() {
-            resumeCallCount += 1
-        }
-    }
+    
     
 }
