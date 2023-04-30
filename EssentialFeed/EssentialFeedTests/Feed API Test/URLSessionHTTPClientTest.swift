@@ -41,23 +41,19 @@ final class URLSessionHTTPClientTest : XCTestCase {
     // MARK: - helpers
     private class URLSessionSpy: URLSession {
         
-        var recviedUrls = [URL]()
         var stubs = [URL: URLSessionDataTask]()
         
         func stub(url:URL,  task:  URLSessionDataTask) {
         stubs[url] = task
         }
         override func dataTask(with url: URL, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-            recviedUrls.append(url)
             return stubs[url] ?? FakeSessionData()
         }
         
     }
     
     private class FakeSessionData: URLSessionDataTask {
-        override func resume() {
-            
-        }
+        override func resume() {}
     }
     private class URLSessionDataSpy: URLSessionDataTask {
         var resumeCallCount = 0
