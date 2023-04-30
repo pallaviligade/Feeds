@@ -206,7 +206,7 @@ final class RemoteFeedLoaderTest: XCTestCase {
         }
         
         func complete(with error:Error,at index:Int = 0) {
-            messages[index].complection(.failour(error))
+            messages[index].complection(.failure(error))
         }
         
         func complete(withstatusCode code:Int,data:Data,at index:Int = 0) {

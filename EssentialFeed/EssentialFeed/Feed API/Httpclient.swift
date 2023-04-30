@@ -8,7 +8,7 @@
 import Foundation
 public enum HTTPClientResult {
     case success(Data,HTTPURLResponse)
-    case failour(Error)
+    case failure(Error)
 }
 public protocol Httpclient {
     func get(from url: URL,completion:@escaping (HTTPClientResult) -> Void )
