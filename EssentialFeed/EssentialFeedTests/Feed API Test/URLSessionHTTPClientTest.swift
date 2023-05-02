@@ -70,9 +70,9 @@ final class URLSessionHTTPClientTest : XCTestCase {
     
     func test_getFromUrl_FailsOnRequestError() {
         
-        let RequestError = NSError(domain: "any error", code: 1)
+       
 
-        let RecivedError = restltError(data: nil, response: nil, error: RequestError)
+        let RecivedError = restltError(data: nil, response: nil, error: anyError())
         
         
        
@@ -82,8 +82,23 @@ final class URLSessionHTTPClientTest : XCTestCase {
     }
     
     func test_getFrpmUrl_failsOnAllnilValues(){
-        let RecivedError = restltError(data: nil, response: nil, error: nil)
-      XCTAssertNotNil(RecivedError)
+
+        let nonHTTPResponse = URLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
+         let anyHTTPResponse = HTTPURLResponse(url: anyURL(), statusCode: 200, httpVersion: nil, headerFields: nil)
+       
+        XCTAssertNotNil(restltError(data: nil, response: nil, error: nil))
+        XCTAssertNotNil(restltError(data: nil, response: nonHTTPResponse, error: nil))
+        XCTAssertNotNil(restltError(data: nil, response: anyHTTPResponse, error: nil))
+        XCTAssertNotNil(restltError(data: anyData(), response: nil, error: nil))
+        XCTAssertNotNil(restltError(data: anyData(), response: nonHTTPResponse, error: anyError()))
+        XCTAssertNotNil(restltError(data: anyData(), response: anyHTTPResponse, error: anyError()))
+        XCTAssertNotNil(restltError(data: anyData(), response: nonHTTPResponse, error: anyError()))
+        XCTAssertNotNil(restltError(data: anyData(), response: anyHTTPResponse, error: anyError()))
+        XCTAssertNotNil(restltError(data: anyData(), response: nonHTTPResponse, error: nil))
+
+
+
+
         
     }
     
@@ -124,6 +139,16 @@ final class URLSessionHTTPClientTest : XCTestCase {
     private func anyURL() -> URL {
         let url = URL(string: "http://any-url.com")!
         return url
+    }
+    
+    private  func anyError()  -> Error {
+        let RequestError = NSError(domain: "any error", code: 1)
+        return RequestError
+    }
+    
+    private func anyData() ->  Data  {
+        let anyData  = Data(bytes: "anystring".utf8)
+        return anyData
     }
    
     private class URLProtocolStub: URLProtocol {
