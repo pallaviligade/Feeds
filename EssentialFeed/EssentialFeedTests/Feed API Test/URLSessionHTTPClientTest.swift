@@ -17,11 +17,17 @@ private class URLSessionHTTPClient {
         self.session = session
     }
     
+    private struct UnexpectedValuesRepresentation: Error {}
+    
     func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
        // let url = URL(string: "http://wrong-url.com")!
             session.dataTask(with: url) { _, _, error in
                 if let error = error {
                     completion(.failure(error))
+                } else {
+                    
+                    completion(.failure(UnexpectedValuesRepresentation()))
+                    
                 }
             }.resume()
         }
@@ -86,6 +92,29 @@ final class URLSessionHTTPClientTest : XCTestCase {
         URLProtocolStub.stopInterceptingRequests()
     }
     
+    func test_getFrpmUrl_failsOnAllnilValues(){
+        URLProtocolStub.startInterceptingRequests()
+        URLProtocolStub.stub(data:nil, response:nil, error: nil)
+        
+        
+        let exp = expectation(description: "Wait for completion")
+        
+        makeSUT().get(from: anyURL()) { result in
+            switch result {
+             case .failure:
+              break
+            default:
+                XCTFail("Expected failure got \(result) instead")
+            }
+            
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
+        URLProtocolStub.stopInterceptingRequests()
+        
+    }
+    
     func test_getFromURL_failsOnRequestError() {
 //      let requestError = anyNSError()
 //
@@ -110,7 +139,7 @@ final class URLSessionHTTPClientTest : XCTestCase {
     private class URLProtocolStub: URLProtocol {
         
         private static var stubs: Stub?
-         private static var requestOberser: ((URLRequest) -> Void)?
+        private static var requestOberser: ((URLRequest) -> Void)?
 
         private struct Stub {
             let error: Error?
