@@ -18,8 +18,8 @@ private class URLSessionHTTPClient {
     }
     
     func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
+       // let url = URL(string: "http://wrong-url.com")!
             session.dataTask(with: url) { _, _, error in
-               // let url = URL(string: "http://wrong-url.com")
                 if let error = error {
                     completion(.failure(error))
                 }
@@ -30,7 +30,25 @@ private class URLSessionHTTPClient {
 
 final class URLSessionHTTPClientTest : XCTestCase {
     
-    
+    func test_getFrom_UrlPerformsGetRequestWithURL() {
+        URLProtocolStub.startInterceptingRequests()
+        let url = URL(string: "http://some-urls.com")!
+        let exp = expectation(description: "wait until excaption")
+        
+        URLProtocolStub.oberserRequest { request in
+            XCTAssertEqual(request.url, url)
+            XCTAssertEqual(request.httpMethod, "GET")
+            exp.fulfill()
+        }
+      
+        URLSessionHTTPClient().get(from: url) { _ in
+            
+        }
+        wait(for: [exp], timeout: 3.0)
+        
+        
+        URLProtocolStub.stopInterceptingRequests()
+    }
     
     func test_getFromUrl_FailsOnRequestError() {
         URLProtocolStub.startInterceptingRequests()
@@ -45,7 +63,8 @@ final class URLSessionHTTPClientTest : XCTestCase {
         sut.get(from: url) { result in
             switch result {
             case let .failure(receivedError as NSError):
-                XCTAssertEqual(receivedError.domain, error.domain)
+                XCTAssertEqual(receivedError.code, error.code)
+                XCTAssertNotNil(receivedError)
             default:
                 XCTFail("Expected failure with error \(error), got \(result) instead")
             }
@@ -57,16 +76,30 @@ final class URLSessionHTTPClientTest : XCTestCase {
         URLProtocolStub.stopInterceptingRequests()
     }
     
+    func test_getFromURL_failsOnRequestError() {
+//      let requestError = anyNSError()
+//
+//      let receivedError = resultErrorFor((data: nil, response: nil, error: requestError))
+//
+//      XCTAssertNotNil(receivedError)
+    }
     
     // MARK: - helpers
     private class URLProtocolStub: URLProtocol {
         
         private static var stubs: Stub?
-        
+         private static var requestOberser: ((URLRequest) -> Void)?
+
         private struct Stub {
             let error: Error?
             let data: Data?
             let response: URLResponse?
+        }
+        
+        static func oberserRequest(_ observer:@escaping (URLRequest) -> Void) {
+            
+            requestOberser = observer
+            
         }
         
         static func stub(data:Data?, response:URLResponse? ,error: Error? ) {
@@ -80,6 +113,7 @@ final class URLSessionHTTPClientTest : XCTestCase {
         static func stopInterceptingRequests() {
             URLProtocol.unregisterClass(URLProtocolStub.self)
             stubs = nil
+            requestOberser = nil
         }
         
         override class func canInit(with request: URLRequest) -> Bool {
@@ -89,6 +123,7 @@ final class URLSessionHTTPClientTest : XCTestCase {
         }
         
         override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+            requestOberser?(request)
             return request
         }
         
