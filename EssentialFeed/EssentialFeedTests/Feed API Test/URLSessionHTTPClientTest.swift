@@ -24,7 +24,7 @@ private class URLSessionHTTPClient {
         session.dataTask(with: url) { data, response, error in
             if let error = error {
                 completion(.failure(error))
-            }else if let data = data,data.count > 0, let response = response as? HTTPURLResponse  {
+            }else if let data = data, let response = response as? HTTPURLResponse  {
                 completion(.success(data, response))
             }
             else {
@@ -117,6 +117,28 @@ final class URLSessionHTTPClientTest : XCTestCase {
         wait(for: [exp], timeout: 3.0)
     }
     
+    func test_getFromURL_succeedsWithEmptyDataOnHTTPURLResponseWithNilData(){
+        let passedData  = anyData()
+        let passedRespone =  HTTPURLResponse(url: anyURL(), statusCode: 200, httpVersion: nil, headerFields: nil)!
+        URLProtocolStub.stub(data: nil, response:passedRespone , error: nil)
+        
+        let exp = expectation(description: "wait unti load")
+        makeSUT().get(from: anyURL()) { result in
+            switch result {
+            case let .success(recivedData, recivedResponse):
+                let emptyData  = Data()
+                XCTAssertEqual(recivedData, emptyData)
+                XCTAssertEqual(recivedResponse.url, passedRespone.url)
+                XCTAssertEqual(recivedResponse.statusCode, passedRespone.statusCode)
+                
+            default:
+                XCTFail("expect result, got  \(result)")
+            }
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 3.0)
+    }
    
     
  
