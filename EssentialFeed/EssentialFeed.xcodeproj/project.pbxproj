@@ -17,6 +17,7 @@
 		8EB0A91B29F2C3C00079A3BD /* RemoteFeedLoaderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB0A91A29F2C3C00079A3BD /* RemoteFeedLoaderTest.swift */; };
 		8EB14B5B29FE4648002B0A31 /* URLSessionHTTPClientTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB14B5A29FE4648002B0A31 /* URLSessionHTTPClientTest.swift */; };
 		8EB3FA1A29F5360300515F45 /* RemoteFeedLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3FA1929F5360300515F45 /* RemoteFeedLoader.swift */; };
+		8EDE08922A0138D50063D6CB /* XCTestCase+Memoryleaks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EDE08912A0138D50063D6CB /* XCTestCase+Memoryleaks.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +42,7 @@
 		8EB0A91A29F2C3C00079A3BD /* RemoteFeedLoaderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFeedLoaderTest.swift; sourceTree = "<group>"; };
 		8EB14B5A29FE4648002B0A31 /* URLSessionHTTPClientTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionHTTPClientTest.swift; sourceTree = "<group>"; };
 		8EB3FA1929F5360300515F45 /* RemoteFeedLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFeedLoader.swift; sourceTree = "<group>"; };
+		8EDE08912A0138D50063D6CB /* XCTestCase+Memoryleaks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Memoryleaks.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +105,7 @@
 		8E96CD2C29F2BFCE00FC2C79 /* EssentialFeedTests */ = {
 			isa = PBXGroup;
 			children = (
+				8EDE08902A0138990063D6CB /* Helpers */,
 				8E18EAFA29FC0360009652B6 /* Feed API Test */,
 			);
 			path = EssentialFeedTests;
@@ -125,6 +128,14 @@
 				8EA1DBC629FBD65A00D2BC03 /* Httpclient.swift */,
 			);
 			path = "Feed API";
+			sourceTree = "<group>";
+		};
+		8EDE08902A0138990063D6CB /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				8EDE08912A0138D50063D6CB /* XCTestCase+Memoryleaks.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -251,6 +262,7 @@
 			files = (
 				8EB0A91B29F2C3C00079A3BD /* RemoteFeedLoaderTest.swift in Sources */,
 				8EB14B5B29FE4648002B0A31 /* URLSessionHTTPClientTest.swift in Sources */,
+				8EDE08922A0138D50063D6CB /* XCTestCase+Memoryleaks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
