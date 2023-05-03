@@ -11,20 +11,9 @@ import EssentialFeed
 final class EssentialFeedAPIEndToEndTestTests: XCTestCase {
 
     func test_endToEndTestServerGETFeedResult_matchesFixedTestAccountData() {
-        let url = URL(string: "https://static1.squarespace.com/static/5891c5b8d1758ec68ef5dbc2/t/5c52cdd0b8a045df091d2fff/1548930512083/feed-case-study-test-api-feed.json")!
-        let httpclient = URLSessionHTTPClient()
-        let loader = RemoteFeedLoader(url: url, client: httpclient)
+       
         
-        let exp = expectation(description: "wait till result  load")
-        var recivedResult: LoadFeedResult?
-        
-        loader.load { result in
-           recivedResult = result
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 4.0)
-        
-        switch recivedResult {
+        switch getFeedResult() {
         case let .success(item)?:
             XCTAssertEqual(item.count,8, "Expected 8 items in the test account feed")
             XCTAssertEqual(item[0], expectedItem(at: 0))
@@ -39,7 +28,21 @@ final class EssentialFeedAPIEndToEndTestTests: XCTestCase {
     }
     
     //MARK: - helper
-    
+    private func getFeedResult() ->  LoadFeedResult? {
+        let url = URL(string: "https://static1.squarespace.com/static/5891c5b8d1758ec68ef5dbc2/t/5c52cdd0b8a045df091d2fff/1548930512083/feed-case-study-test-api-feed.json")!
+        let httpclient = URLSessionHTTPClient()
+        let loader = RemoteFeedLoader(url: url, client: httpclient)
+        
+        let exp = expectation(description: "wait till result  load")
+        var recivedResult: LoadFeedResult?
+        
+        loader.load { result in
+           recivedResult = result
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 4.0)
+        return recivedResult
+    }
     private func expectedItem(at index:Int) -> FeedItem {
         
         return FeedItem(id: itemID(at: index),
