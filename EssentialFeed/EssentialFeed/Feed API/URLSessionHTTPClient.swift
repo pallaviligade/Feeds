@@ -19,6 +19,8 @@ public class URLSessionHTTPClient:Httpclient {
     
     public func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
         // let url = URL(string: "http://wrong-url.com")!
+        
+        
         session.dataTask(with: url) { data, response, error in
             if let error = error {
                 completion(.failure(error))
