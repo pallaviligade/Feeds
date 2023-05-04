@@ -34,20 +34,16 @@ class feedStore {
 
 final class CacheFeedUseCaseTests: XCTestCase {
 
-    
-  
     func test_init_doesNotDeleteCacheUponCreation() {
        
-        let store = feedStore()
-        let sut = localFeedLoader(store: store)
+        let ( _,store) = makeSUT()
         
         XCTAssertEqual(store.deleteCacheFeedCallCount, 0)
         
     }
     
     func test_save_RequestCacheDeleetion() {
-        let store = feedStore()
-        let sut = localFeedLoader(store: store)
+       let (sut, store) = makeSUT()
         
         let items = [uiqureItem(), uiqureItem()]
         sut.save(items)
@@ -66,6 +62,13 @@ final class CacheFeedUseCaseTests: XCTestCase {
        return URL(string: "http://any-url.com")!
     }
     
-    private 
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: localFeedLoader, store:feedStore) {
+        let store = feedStore()
+        let sut = localFeedLoader(store: store)
+        trackForMemoryLeaks(sut, file: file, line: line)
+        trackForMemoryLeaks(store, file: file, line: line)
+        
+        return (sut, store)
+    }
 
 }
