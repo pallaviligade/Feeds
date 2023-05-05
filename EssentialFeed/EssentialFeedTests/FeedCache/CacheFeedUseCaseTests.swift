@@ -13,22 +13,30 @@ class localFeedLoader {
     let store: FeedStore
     private let currentDate: () -> Date
     
-    init(store: FeedStore,currentDate:@escaping () -> Date ) {
+    init(store: FeedStore,currentDate:@escaping () -> Date )  {
         self.store = store
         self.currentDate = currentDate
     }
     
     func save(_ item: [FeedItem], completion: @escaping (Error?) -> Void = { _  in }){
-        store.deleteCachedFeed(completion: { [unowned  self] error in
+        store.deleteCachedFeed(completion: { [weak  self] error in
+            guard let self = self else { return  }
            
-            if error == nil {
-                self.store.insertItem(item, timestamp: self.currentDate(), completion: completion)
-                
-            }else {
-                completion(error)
-            }
             
+            if let deletionError = error {
+                completion(deletionError)
+            }else {
+                self.cache(item, completion: completion)
+            }
         })
+    }
+    
+    private func cache(_  item:[FeedItem],completion:@escaping (Error?) -> Void)
+    {
+        store.insertItem(item, timestamp: self.currentDate()) { [weak self] error in
+            guard self != nil else { return }
+            completion(error)
+        }       
     }
     
 }
