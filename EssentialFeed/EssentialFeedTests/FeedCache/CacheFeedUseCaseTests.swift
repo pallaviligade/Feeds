@@ -8,44 +8,7 @@
 import XCTest
 import EssentialFeed
 
-class localFeedLoader {
-    
-    let store: FeedStore
-    private let currentDate: () -> Date
-    
-    init(store: FeedStore,currentDate:@escaping () -> Date )  {
-        self.store = store
-        self.currentDate = currentDate
-    }
-    
-    func save(_ item: [FeedItem], completion: @escaping (Error?) -> Void = { _  in }){
-        store.deleteCachedFeed(completion: { [weak  self] error in
-            guard let self = self else { return  }
-           
-            
-            if let deletionError = error {
-                completion(deletionError)
-            }else {
-                self.cache(item, completion: completion)
-            }
-        })
-    }
-    
-    private func cache(_  item:[FeedItem],completion:@escaping (Error?) -> Void)
-    {
-        store.insertItem(item, timestamp: self.currentDate()) { [weak self] error in
-            guard self != nil else { return }
-            completion(error)
-        }       
-    }
-    
-}
 
-protocol FeedStore {
-  
-    func deleteCachedFeed(completion: @escaping (Error?) -> Void)
-    func insertItem(_ item: [FeedItem], timestamp: Date, completion: @escaping (Error?) -> Void)
-}
 
 
 
@@ -180,9 +143,9 @@ final class CacheFeedUseCaseTests: XCTestCase {
     private  func anyError()  -> NSError {
         return NSError(domain: "any error", code: 1)
     }
-    private func makeSUT(currentDate:@escaping() -> Date = Date.init ,file: StaticString = #file, line: UInt = #line) -> (sut: localFeedLoader, store:feedStoreSpy) {
+    private func makeSUT(currentDate:@escaping() -> Date = Date.init ,file: StaticString = #file, line: UInt = #line) -> (sut: LocalFeedLoader, store:feedStoreSpy) {
         let store = feedStoreSpy()
-        let sut = localFeedLoader(store: store, currentDate:currentDate)
+        let sut = LocalFeedLoader(store: store, currentDate:currentDate)
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(store, file: file, line: line)
         
