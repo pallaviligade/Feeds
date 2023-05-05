@@ -11,16 +11,18 @@ import EssentialFeed
 class localFeedLoader {
     
     let store: feedStore
+    private let currentDate: () -> Date
     
-    init(store: feedStore) {
+    init(store: feedStore,currentDate:@escaping () -> Date ) {
         self.store = store
+        self.currentDate = currentDate
     }
     
     func save(_ item: [FeedItem]){
         store.deleteCachedFeed(completion: { [unowned  self] error in
             
             if error == nil {
-                self.store.insertItem(item)
+                self.store.insertItem(item, timestamp: self.currentDate())
                 
             }
             
@@ -34,6 +36,7 @@ class feedStore {
     var insertCallCount = 0
     
     private var deletionCompletions = [(Error?) -> Void]()
+    var insertions = [(items:[FeedItem], timestamp: Date)]()
     
     func deleteCachedFeed(completion: @escaping (Error?) -> Void) {
         deleteCacheFeedCallCount = 1
@@ -47,8 +50,9 @@ class feedStore {
         deletionCompletions[index](nil)
     }
     
-    func insertItem(_ item: [FeedItem]) {
+    func insertItem(_ item: [FeedItem], timestamp: Date) {
         insertCallCount +=  1
+        insertions.append((items:item, timestamp: timestamp))
     }
 }
 
@@ -82,7 +86,7 @@ final class CacheFeedUseCaseTests: XCTestCase {
         store.completeDeletion(with: error)// when
         
         
-        XCTAssertEqual(store.insertCallCount, 0)
+        XCTAssertEqual(store.insertions.count, 1)
 
     }
     
@@ -98,6 +102,22 @@ final class CacheFeedUseCaseTests: XCTestCase {
 
     }
     
+    func test_save_requestsNewCacheInsertionWithTimeStampOnSuccessfulDeletion() {
+        let timestamp = Date()
+        let items = [uiqureItem(), uiqureItem()]
+        let (sut, store) =  makeSUT(currentDate: { timestamp })
+      
+        
+        sut.save(items)
+        store.completeDeletionSuccessFully() // when
+        
+        XCTAssertEqual(store.insertCallCount, 1)
+        XCTAssertEqual(store.insertions.first?.items,items)
+        XCTAssertEqual(store.insertions.first?.timestamp,timestamp)
+
+
+    }
+    
     //MARK: - Helpers
     
     private func uiqureItem() -> FeedItem  {
@@ -110,9 +130,9 @@ final class CacheFeedUseCaseTests: XCTestCase {
     private  func anyError()  -> Error {
         return NSError(domain: "any error", code: 1)
     }
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: localFeedLoader, store:feedStore) {
+    private func makeSUT(currentDate:@escaping() -> Date = Date.init ,file: StaticString = #file, line: UInt = #line) -> (sut: localFeedLoader, store:feedStore) {
         let store = feedStore()
-        let sut = localFeedLoader(store: store)
+        let sut = localFeedLoader(store: store, currentDate:currentDate)
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(store, file: file, line: line)
         
