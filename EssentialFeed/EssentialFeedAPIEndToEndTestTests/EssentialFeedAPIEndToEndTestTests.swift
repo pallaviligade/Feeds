@@ -43,9 +43,9 @@ final class EssentialFeedAPIEndToEndTestTests: XCTestCase {
         wait(for: [exp], timeout: 4.0)
         return recivedResult
     }
-    private func expectedItem(at index:Int) -> FeedItem {
+    private func expectedItem(at index:Int) -> FeedImage {
         
-        return FeedItem(id: itemID(at: index),
+        return FeedImage(id: itemID(at: index),
                         description: description(at: index),
                         location: location(at: index),
                         imageURL:imageURL(at: index))

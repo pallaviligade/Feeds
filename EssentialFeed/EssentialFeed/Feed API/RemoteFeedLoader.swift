@@ -21,7 +21,7 @@ public final class RemoteFeedLoader: FeedLoader
    public typealias Result = LoadFeedResult
     
 //    public enum Result: Equatable {
-//        case success([FeedItem])
+//        case success([FeedImage])
 //        case failure(Error)
 //    }
     
@@ -59,8 +59,8 @@ public final class RemoteFeedLoader: FeedLoader
 }
 
 extension Array where Element ==  RemoteFeedItem {
-    func toModel() -> [FeedItem] {
-        return map({ FeedItem(id: $0.id, description: $0.description, location: $0.location, imageURL: $0.image)})
+    func toModel() -> [FeedImage] {
+        return map({ FeedImage(id: $0.id, description: $0.description, location: $0.location, imageURL: $0.image)})
     }
 }
 
