@@ -26,8 +26,8 @@ final class CacheFeedUseCaseTests: XCTestCase {
     func test_save_RequestCacheDeletion() {
        let (sut, store) = makeSUT()
         
-        let items = [uiqureItem(), uiqureItem()]
-        sut.save(items)
+        //let items = [uiqureItem(), uiqureItem()]
+        sut.save(uniqueItems().models)
         
         XCTAssertEqual(store.recivedMessages, [.deleteCachedFeed])
         
@@ -35,10 +35,10 @@ final class CacheFeedUseCaseTests: XCTestCase {
     
     func test_save_doesNotRequestCacheInsertionOnDeletionError () {
         let (sut, store) = makeSUT()
-        let items = [uiqureItem(), uiqureItem()]
+       // let items = [uiqureItem(), uiqureItem()]
         let error = anyError()
         
-        sut.save(items)
+        sut.save(uniqueItems().models)
         store.completeDeletion(with: error)// when
         
         
@@ -46,17 +46,17 @@ final class CacheFeedUseCaseTests: XCTestCase {
 
     }
     
-    func test_save_requestsNewCacheInsertionOnSuccessfulDeletion() {
-        
-        let (sut, store) = makeSUT()
-        let items = [uiqureItem(), uiqureItem()]
-        
-        sut.save(items)
-        store.completeDeletionSuccessFully() // when
-        
-        XCTAssertEqual(store.insertCallCount, 1)
-
-    }
+//    func test_save_requestsNewCacheInsertionOnSuccessfulDeletion() {
+//
+//        let (sut, store) = makeSUT()
+//        let items = [uiqureItem(), uiqureItem()]
+//
+//        sut.save(items)
+//        store.completeDeletionSuccessFully() // when
+//
+//        XCTAssertEqual(store.insertCallCount, 1)
+//
+//    }
     
     func test_save_requestsNewCacheInsertionWithTimeStampOnSuccessfulDeletion() {
         let timestamp = Date()
@@ -75,13 +75,12 @@ final class CacheFeedUseCaseTests: XCTestCase {
     
     func test_save_failsOnDeletionError () {
         let (sut, store) = makeSUT()
-        let items = [uiqureItem(), uiqureItem()]
         let deletionError = anyError()
         
         let exp = expectation(description: "wait unti")
         var recviedError: Error?
         
-        sut.save(items) { error  in
+        sut.save(uniqueItems().models) { error  in
             recviedError = error
             exp.fulfill()
         }
@@ -94,13 +93,13 @@ final class CacheFeedUseCaseTests: XCTestCase {
     
     func test_save_failsOnInsertionsError () {
         let (sut, store) = makeSUT()
-        let items = [uiqureItem(), uiqureItem()]
+      //  let items = [uiqureItem(), uiqureItem()]
         let insertionError = anyError()
         
         let exp = expectation(description: "wait unti")
         var recviedError: Error?
         
-        sut.save(items) { error  in
+        sut.save(uniqueItems().models) { error  in
             recviedError = error
             exp.fulfill()
         }
@@ -114,12 +113,12 @@ final class CacheFeedUseCaseTests: XCTestCase {
     
     func test_save_SuccessOnSuccesfullyCacheInsertions () {
         let (sut, store) = makeSUT()
-        let items = [uiqureItem(), uiqureItem()]
+       // let items = [uiqureItem(), uiqureItem()]
         
         let exp = expectation(description: "wait unti")
         var recviedError: Error?
         
-        sut.save(items) { error  in
+        sut.save(uniqueItems().models) { error  in
             recviedError = error
             exp.fulfill()
         }
@@ -135,7 +134,16 @@ final class CacheFeedUseCaseTests: XCTestCase {
     //MARK: - Helpers
     
     private func uiqureItem() -> FeedItem  {
-        return FeedItem(id: UUID(), description: "name", location: "Pune", imageURL: anyURL())
+        return FeedItem(id: UUID(), description: "any", location: "any", imageURL: anyURL())
+        
+    }
+    
+    private func uniqueItems() -> (models: [FeedItem], localitems: [LocalFeedImage]) {
+        
+        let model = [uiqureItem(), uiqureItem()]
+        let localitems = model.map { LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, imageURL: $0.imageURL) }
+return (model, localitems)
+        
         
     }
     private func anyURL() -> URL {
