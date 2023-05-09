@@ -11,10 +11,12 @@ public final class LocalFeedLoader {
     
     private let store: FeedStore
     private let currentDate: () -> Date
+    private let calendar = Calendar(identifier: .gregorian)
     
    public init(store: FeedStore,currentDate:@escaping () -> Date )  {
         self.store = store
         self.currentDate = currentDate
+       
     }
     public typealias saveResult = Error?
     public typealias loadResult = LoadFeedResult
@@ -33,18 +35,28 @@ public final class LocalFeedLoader {
     }
     
     public func load(completionHandler:@escaping (loadResult) -> Void){
-        store.retrival { result in
+        store.retrival {[unowned self] result in
                 switch result {
                 case let .failure(error):
                     completionHandler(.failure(error))
                     
-                case let .found(feed, _):
+                case let .found(feed, timestamp) where self.validate(timestamp):
                     completionHandler(.success(feed.toModels()))
                     
-                case .empty:
+                case .found,.empty:
                     completionHandler(.success([]))
                 }
             }
+        }
+    private var maxCacheAgeInDays: Int {
+            return 7
+        }
+    
+    private func validate(_ timestamp: Date) -> Bool {
+            guard let maxCacheAge = calendar.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) else {
+                return false
+            }
+            return currentDate() < maxCacheAge
         }
     
     private func cache(_  item:[FeedImage],completion:@escaping (saveResult) -> Void)
