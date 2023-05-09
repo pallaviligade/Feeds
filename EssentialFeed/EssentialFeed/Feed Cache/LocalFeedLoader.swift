@@ -17,6 +17,7 @@ public final class LocalFeedLoader {
         self.currentDate = currentDate
     }
     public typealias saveResult = Error?
+    public typealias loadResult = LoadFeedResult
     
    public func save(_ item: [FeedImage], completion: @escaping (saveResult) -> Void = { _  in }){
         store.deleteCachedFeed(completion: { [weak  self] error in
@@ -31,16 +32,20 @@ public final class LocalFeedLoader {
         })
     }
     
-    public func load(completionHandler:@escaping (LoadFeedResult) -> Void){
-        store.retrival { error in
-            if let error =  error {
-                completionHandler(.failure(error))
+    public func load(completionHandler:@escaping (loadResult) -> Void){
+        store.retrival { result in
+                switch result {
+                case let .failure(error):
+                    completionHandler(.failure(error))
+                    
+                case let .found(feed, _):
+                    completionHandler(.success(feed.toModels()))
+                    
+                case .empty:
+                    completionHandler(.success([]))
+                }
             }
-           else {
-               completionHandler(.success([]))
-           }
         }
-    }
     
     private func cache(_  item:[FeedImage],completion:@escaping (saveResult) -> Void)
     {
@@ -58,4 +63,9 @@ private extension Array where Element == FeedImage {
         return map { LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.imageURL) }
     }
     
+}
+private extension Array where Element == LocalFeedImage {
+    func toModels() -> [FeedImage] {
+        return map { FeedImage(id: $0.id, description: $0.description, location: $0.location, imageURL: $0.url) }
+    }
 }
