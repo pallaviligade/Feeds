@@ -31,8 +31,12 @@ public final class LocalFeedLoader {
         })
     }
     
-    public func load(completionHandler:@escaping (Error?) -> Void){
-        store.retrival(complectionHandler: completionHandler)
+    public func load(completionHandler:@escaping (LoadFeedResult) -> Void){
+        store.retrival { error in
+            switch error {
+                case
+            }
+        }
     }
     
     private func cache(_  item:[FeedImage],completion:@escaping (saveResult) -> Void)
