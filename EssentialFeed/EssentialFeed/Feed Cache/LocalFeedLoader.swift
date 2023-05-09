@@ -33,9 +33,12 @@ public final class LocalFeedLoader {
     
     public func load(completionHandler:@escaping (LoadFeedResult) -> Void){
         store.retrival { error in
-            switch error {
-                case
+            if let error =  error {
+                completionHandler(.failure(error))
             }
+//            }else {
+//                completionHandler(.success([]))
+//            }
         }
     }
     

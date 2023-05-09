@@ -55,7 +55,7 @@ class feedStoreSpy: FeedStore {
         recivedMessages.append(.retrival)
     }
     
-    func completeRetrival(at index:Int = 0, error: Error){
-        retrivalCompletions[index](nil)
+    func completeRetrieval(with error: Error, at index:Int = 0){
+        retrivalCompletions[index](error)
     }
  }

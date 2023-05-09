@@ -30,19 +30,25 @@ final class LoadFeedCacheFromCacheUseCaseTest: XCTestCase {
     func test_loadFailsOnretrivalError() {
         
         let ( sut,store) = makeSUT()
-        var retrivalError = anyError()
+        var retrievalError = anyError()
         
         let exp = expectation(description: "wait until do")
-        var recviedError: Error?
-        sut.load { error in
-            recviedError = error
+        var receivedError: Error?
+        sut.load { result in
+            switch result {
+            case let .failure(error):
+                receivedError = error
+            default:
+                XCTFail("expected failour got result \(result)")
+            }
             exp.fulfill()
         } // When
         
-        store.completeRetrival(error: retrivalError)
+        store.completeRetrieval(with: retrievalError)
         wait(for: [exp], timeout: 3.0)
         
-        XCTAssertEqual(recviedError as NSError?, retrivalError)
+        XCTAssertEqual(receivedError as NSError?, retrievalError)
+        
     }
     
     private func makeSUT(currentDate:@escaping() -> Date = Date.init ,file: StaticString = #file, line: UInt = #line) -> (sut: LocalFeedLoader, store:feedStoreSpy) {
