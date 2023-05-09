@@ -51,6 +51,28 @@ final class LoadFeedCacheFromCacheUseCaseTest: XCTestCase {
         
     }
     
+    func test_load_deliversNoImagesOnEmptyCache() {
+        let ( sut,store) = makeSUT()
+        
+        let exp = expectation(description: "wait until do")
+        var receivedImage: [FeedImage]?
+        
+        sut.load { result in
+            switch result {
+            case let .success(images):
+                receivedImage = images
+            default:
+                XCTFail("expected sucess got result \(result)")
+            }
+            exp.fulfill()
+        } // When
+        
+        store.completeRetrievalSuccessfully()
+        wait(for: [exp], timeout: 1.0)
+        
+        XCTAssertEqual(receivedImage, [])
+    }
+    
     private func makeSUT(currentDate:@escaping() -> Date = Date.init ,file: StaticString = #file, line: UInt = #line) -> (sut: LocalFeedLoader, store:feedStoreSpy) {
         let store = feedStoreSpy()
         let sut = LocalFeedLoader(store: store, currentDate:currentDate)
