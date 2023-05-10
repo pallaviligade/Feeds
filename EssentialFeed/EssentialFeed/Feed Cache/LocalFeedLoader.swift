@@ -35,7 +35,8 @@ public final class LocalFeedLoader {
     }
     
     public func load(completionHandler:@escaping (loadResult) -> Void){
-        store.retrival {[unowned self] result in
+        store.retrival {[weak self] result in
+            guard let self = self else { return }
                 switch result {
                 case let .failure(error):
                     completionHandler(.failure(error))
@@ -48,6 +49,16 @@ public final class LocalFeedLoader {
                 }
             }
         }
+    public func validateCahe() {
+        store.retrival { [unowned self] result in
+            switch result {
+            case .failure:
+                    self.store.deleteCachedFeed{ _ in  }
+            default: break
+            }
+        }
+        
+    }
     private var maxCacheAgeInDays: Int {
             return 7
         }
