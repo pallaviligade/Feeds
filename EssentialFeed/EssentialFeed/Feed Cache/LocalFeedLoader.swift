@@ -8,23 +8,18 @@
 import Foundation
 
 private final  class  FeedCachePolicy {
-    private let calendar = Calendar(identifier: .gregorian)
-    private let currentDate: () -> Date
-   
-    init(currentDate: @escaping () -> Date) {
-        self.currentDate = currentDate
-    }
+    private init () {}
+    private static let calendar = Calendar(identifier: .gregorian)
     
-    
-    private var maxCacheAgeInDays: Int {
+   static private var maxCacheAgeInDays: Int {
         return 7
     }
     
-     func validate(_ timestamp: Date) -> Bool {
+   static func validate(_ timestamp: Date, against date:Date) -> Bool {
         guard let maxCacheAge = calendar.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) else {
             return false
         }
-        return currentDate() < maxCacheAge
+        return date < maxCacheAge
     }
     
     
@@ -34,12 +29,12 @@ public final class LocalFeedLoader {
     
     private let store: FeedStore
     private let currentDate: () -> Date
-    private let feedCachePolicy: FeedCachePolicy
+   
     
     public init(store: FeedStore,currentDate:@escaping () -> Date )  {
         self.store = store
         self.currentDate = currentDate
-        self.feedCachePolicy = FeedCachePolicy(currentDate: self.currentDate)
+        
     }
  
 }
@@ -75,7 +70,7 @@ extension LocalFeedLoader: FeedLoader {
             case let .failure(error):
                 completionHandler(.failure(error))
                 
-            case let .found(feed, timestamp) where self.feedCachePolicy.validate(timestamp):
+            case let .found(feed, timestamp) where FeedCachePolicy.validate(timestamp,against: self.currentDate()):
                 completionHandler(.success(feed.toModels()))
                 
             case .found,.empty:
@@ -91,7 +86,7 @@ extension LocalFeedLoader {
             switch result {
             case .failure:
                 self.store.deleteCachedFeed{ _ in  }
-            case let .found(feed: _, timestamp: timespam)  where !self.feedCachePolicy.validate(timespam):
+            case let .found(feed: _, timestamp: timespam)  where FeedCachePolicy.validate(timespam,against: self.currentDate()):
                 self.store.deleteCachedFeed { _ in }
                 break
             case .empty, .found: break
