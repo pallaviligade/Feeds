@@ -51,7 +51,7 @@ final class LoadFeedCacheFromCacheUseCaseTest: XCTestCase {
         func test_load_deliversCachedImagesOnLessThanSevenDaysOldCache() {
                 let feed = uniqueItems()
                 let fixedCurrentDate = Date()
-                let lessThanSevenDaysOldTimestamp = fixedCurrentDate.adding(days: -7).adding(seconds: 1)
+                let lessThanSevenDaysOldTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: 1)
                 let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
 
             exptact(sut, tocompleteWith: .success(feed.models), when: {
@@ -62,7 +62,7 @@ final class LoadFeedCacheFromCacheUseCaseTest: XCTestCase {
     func test_load_deliversNoImagesOnSevenDaysOldCache() {
             let feed = uniqueItems()
             let fixedCurrentDate = Date()
-            let sevenDaysOldTimestamp = fixedCurrentDate.adding(days: -7)
+            let sevenDaysOldTimestamp = fixedCurrentDate.minusFeedCacheMaxAge()
             let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
             
         exptact(sut, tocompleteWith: .success([]), when: {
@@ -73,7 +73,7 @@ final class LoadFeedCacheFromCacheUseCaseTest: XCTestCase {
     func test_load_deliversNoImagesOnMoreThanSevenDaysOldCache() {
             let feed = uniqueItems()
             let fixedCurrentDate = Date()
-            let moreThanSevenDaysOldTimestamp = fixedCurrentDate.adding(days: -7).adding(seconds: -1)
+            let moreThanSevenDaysOldTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: -1)
             let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
 
         exptact(sut, tocompleteWith: .success([]), when: {
