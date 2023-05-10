@@ -30,10 +30,13 @@ return (model, localitems)
 
  extension Date {
      
-     func minusFeedCacheMaxAge() -> Date {
-         return adding(days: -7)
+     private var feedCacheMaxageIndays: Int {
+         return -7
      }
-    func adding(days: Int) -> Date {
+     func minusFeedCacheMaxAge() -> Date {
+         return adding(days: feedCacheMaxageIndays)
+     }
+   private func adding(days: Int) -> Date {
         return Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
     }
 
