@@ -9,8 +9,28 @@ import XCTest
 import EssentialFeed
 
 class CodableFeedStore {
+    
+   private struct encoderItem: Codable {
+        let item: [LocalFeedImage]
+        let timespam: Date
+    }
+    
+    private let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
+    
     func retrival(complectionHandler:@escaping FeedStore.RetrievalCompletion) {
-        complectionHandler(.empty)
+        guard let data  =  try? Data(contentsOf: storeURL) else { return complectionHandler(.empty) }
+        let decorder = JSONDecoder()
+        let json = try! decorder.decode(encoderItem.self, from: data)
+        complectionHandler(.found(feed: json.item, timestamp: json.timespam))
+    }
+    func insertItem(_ item: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
+        
+       let encoder = JSONEncoder()
+       let encode = try! encoder.encode(encoderItem(item: item, timespam: timestamp))
+     //  guard let storeURL = storeURL else { return }
+       try! encode.write(to: storeURL)
+        completion(nil)
+        
     }
     
 }
@@ -53,6 +73,32 @@ final class CodeableFeedStoreTests: XCTestCase {
         }
         wait(for: [exp], timeout: 1.0)
     }
-   
+    func test_retrieveAfterInsertingToEmptyCache_deliversInsertedValues() {
+        
+        let sut = CodableFeedStore()
+        let feed = uniqueItems()
+        let timespam =  Date()
+        
+        let exp = expectation(description: "wait till expectation")
+       
+        sut.insertItem(feed.localitems, timestamp: timespam) { insertionError in
+            XCTAssertNil(insertionError, "item  insertion fails got this error")
+            
+            sut.retrival { result in
+                switch result {
+                case let .found(feed: retivalFeed, timestamp: retivalsTimespam):
+                    XCTAssertEqual(retivalFeed, feed.localitems)
+                    XCTAssertEqual(retivalsTimespam, timespam)
+                default:
+                 XCTFail("expected found result  with \(feed) & timesapma\(timespam) and got result \(result)")
+                }
+                exp.fulfill()
+            }
+            
+        }
+        wait(for: [exp], timeout: 1.0)
+        
+        
+    }
     
 }
