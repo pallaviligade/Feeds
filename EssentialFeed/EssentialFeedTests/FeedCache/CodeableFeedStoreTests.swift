@@ -37,6 +37,20 @@ class CodableFeedStore {
 
 final class CodeableFeedStoreTests: XCTestCase {
 
+    override class func setUp() {
+        super.setUp()
+        let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
+      try? FileManager.default.removeItem(at: storeURL)
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+         let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
+       try? FileManager.default.removeItem(at: storeURL)
+    }
+    
+    
+    
     func test_retrive_deliveryEmptyCache() {
         let sut = CodableFeedStore()
         let exp = expectation(description: "wait till expectation")
