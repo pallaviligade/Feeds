@@ -143,6 +143,38 @@ final class CodeableFeedStoreTests: XCTestCase {
         
     }
     
+    func test_retrivals_hasNoSideEffectsOnEmptyCache() {
+        let sut = makeSUT()
+        let feed = uniqueItems()
+        let timespam =  Date()
+        
+        let exp = expectation(description: "wait till expectation")
+       
+        sut.insertItem(feed.localitems, timestamp: timespam) { insertionError in
+            XCTAssertNil(insertionError, "item  insertion fails got this error")
+            
+            sut.retrival { firstReslt in
+                sut.retrival { secondResult in
+                    switch (firstReslt,secondResult) {
+                    case let (.found(firstFound), .found(secondFound)):
+                        XCTAssertEqual(firstFound.feed, feed.localitems)
+                        XCTAssertEqual(firstFound.timestamp, timespam)
+                        
+                        XCTAssertEqual(secondFound.feed, feed.localitems)
+                        XCTAssertEqual(secondFound.timestamp, timespam)
+                    default:
+                     XCTFail("expected retriveing twice from non empty cache to deliver same found result with feed\(feed) & timesapma\(timespam) and got firstresult \(firstReslt) and secondResult\(secondResult)")
+                    }
+                    exp.fulfill()
+                }
+                
+            }
+            
+        }
+        wait(for: [exp], timeout: 1.0)
+        
+    }
+    
     private func makeSUT( file: StaticString = #file, line: UInt = #line) -> CodableFeedStore  {
         let sut = CodableFeedStore(stupTestURL())
         trackForMemoryLeaks(sut,file: file, line: line)
