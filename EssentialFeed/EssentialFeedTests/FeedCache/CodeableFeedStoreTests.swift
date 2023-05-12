@@ -49,8 +49,12 @@ class CodableFeedStore {
     func retrival(complectionHandler:@escaping FeedStore.RetrievalCompletion) {
         guard let data  =  try? Data(contentsOf: storeURL) else { return complectionHandler(.empty) }
         let decorder = JSONDecoder()
-        let json = try! decorder.decode(Cache.self, from: data)
-        complectionHandler(.found(feed: json.localFeed, timestamp: json.timespam))
+        do{
+            let json = try decorder.decode(Cache.self, from: data)
+            complectionHandler(.found(feed: json.localFeed, timestamp: json.timespam))
+        }catch {
+            complectionHandler(.failure(error))
+        }
     }
     func insertItem(_ item: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
         
@@ -157,6 +161,17 @@ final class CodeableFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
     }
+    
+    func test_retrivals_deliveryFailourOnRetrivalError() {
+        let storeURL = stupTestURL() // Given store URL
+        let sut = makeSUT(storeURL: storeURL) //  with SUT
+        
+        try! "invaild data".write(to: storeURL, atomically: true, encoding: .utf8) // When
+        
+        expact(sut, toRetive: .failure(anyError())) // We expact it will failour
+        
+        
+    }
     private func expact(_ sut:CodableFeedStore, toRetive expectedResult:RetrivalsCachedFeedResult ,file: StaticString = #file, line: UInt = #line) {
         let exp = expectation(description: "wait till expectation")
            sut.retrival { retrievedResult in
@@ -166,6 +181,8 @@ final class CodeableFeedStoreTests: XCTestCase {
                     XCTAssertEqual(expected.timestamp, retrive.timestamp, file:file, line:line)
                 break
                 case (.empty, .empty):
+                    break
+                case (.failure, .failure):
                     break
                 
                 default:
@@ -177,8 +194,8 @@ final class CodeableFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
-    private func makeSUT( file: StaticString = #file, line: UInt = #line) -> CodableFeedStore  {
-        let sut = CodableFeedStore(stupTestURL())
+    private func makeSUT(storeURL: URL? = nil,  file: StaticString = #file, line: UInt = #line) -> CodableFeedStore  {
+        let sut = CodableFeedStore(storeURL ?? stupTestURL())
         trackForMemoryLeaks(sut,file: file, line: line)
         return sut
     }
