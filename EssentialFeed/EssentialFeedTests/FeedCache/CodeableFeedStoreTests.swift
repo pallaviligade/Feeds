@@ -218,13 +218,8 @@ final class CodeableFeedStoreTests: XCTestCase {
     
     func test_delete_HasNoSideEffectOnEmptyCache() {
         let sut   =  makeSUT()
-        let exp = expectation(description: "wait till expec")
-        
-        sut.deleteCachedFeed { deletionError in
-            XCTAssertNil(deletionError, "Expected empty cache deletion to succeed")
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1.0)
+       let  deletionError = deleteCache(from: sut)
+        XCTAssertNil(deletionError, "Expected empty cache deletion to succeed")
         expact(sut, toRetive: .empty)
         
     }
@@ -232,15 +227,23 @@ final class CodeableFeedStoreTests: XCTestCase {
             let sut = makeSUT()
             insert((uniqueItems().localitems, Date()), to: sut)
 
-            let exp = expectation(description: "Wait for cache deletion")
-            sut.deleteCachedFeed { deletionError in
-                XCTAssertNil(deletionError, "Expected non-empty cache deletion to succeed")
-                exp.fulfill()
-            }
-            wait(for: [exp], timeout: 1.0)
-
+      let deletionError  = deleteCache(from: sut)
+        XCTAssertNil(deletionError, "Expected non-empty cache deletion to succeed")
         expact(sut, toRetive: .empty)
-        }
+      }
+    
+    private func deleteCache(from sut: CodableFeedStore) -> Error? {
+        
+        let exp = expectation(description: "wait till expections")
+        var deletionError: Error?
+        
+        sut.deleteCachedFeed(completion: { recivedDeletionError in
+            deletionError = recivedDeletionError
+            exp.fulfill()
+        })
+        wait(for: [exp], timeout: 1.0)
+        return deletionError
+    }
     
     @discardableResult
     private func insert(_ cache:(feed: [LocalFeedImage], timespam: Date), to sut:CodableFeedStore) ->  Error?
