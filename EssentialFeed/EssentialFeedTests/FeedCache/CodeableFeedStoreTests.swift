@@ -9,14 +9,8 @@ import XCTest
 import EssentialFeed
 
 class CodableFeedStore {
-    
-    let storeURL: URL
-    
-    init (_ store:  URL) {
-        self.storeURL = store
-    }
-    
-   private struct Cache: Codable {
+ 
+    private struct Cache: Codable {
         let item: [CodebaleFeedImage]
         let timespam: Date
        
@@ -44,6 +38,11 @@ class CodableFeedStore {
         }
     }
 
+    private let storeURL: URL
+     
+     init (_ store:  URL) {
+         self.storeURL = store
+     }
     
    // private let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
     
