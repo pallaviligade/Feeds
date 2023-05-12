@@ -172,6 +172,36 @@ final class CodeableFeedStoreTests: XCTestCase {
         
         
     }
+    func test_insert_overidesPreviouslyInsertedCache(){
+        let sut = makeSUT()
+       
+        
+     let firstInsertionError  = insert((uniqueItems().localitems,Date()), to: sut)
+        XCTAssertNil(firstInsertionError, "Expected to insert cache successfully")
+   
+        let latestFeed = uniqueItems().localitems
+        let latestTimestamp = Date()
+        let secondError  = insert((latestFeed,latestTimestamp), to: sut)
+           XCTAssertNil(firstInsertionError, "Expected to insert cache successfully")
+       
+        expact(sut, toRetive: .found(feed: latestFeed, timestamp: latestTimestamp))
+      
+        
+    }
+    
+    private func insert(_ cache:(feed: [LocalFeedImage], timespam: Date), to sut:CodableFeedStore) ->  Error?
+    {
+        let exp = expectation(description: "wait till expections")
+        var insertionError: Error?
+        
+        sut.insertItem(cache.feed, timestamp: cache.timespam) { recivedInsertionError in
+            insertionError = recivedInsertionError
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.0)
+        return insertionError
+        
+    }
     private func expact(_ sut:CodableFeedStore, toRetive expectedResult:RetrivalsCachedFeedResult ,file: StaticString = #file, line: UInt = #line) {
         let exp = expectation(description: "wait till expectation")
            sut.retrival { retrievedResult in
