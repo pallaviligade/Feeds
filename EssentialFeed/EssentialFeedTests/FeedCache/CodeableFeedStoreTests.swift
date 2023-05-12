@@ -10,7 +10,7 @@ import EssentialFeed
 
 class CodableFeedStore {
     
-   private struct encoderItem: Codable {
+   private struct Cache: Codable {
         let item: [LocalFeedImage]
         let timespam: Date
     }
@@ -20,13 +20,13 @@ class CodableFeedStore {
     func retrival(complectionHandler:@escaping FeedStore.RetrievalCompletion) {
         guard let data  =  try? Data(contentsOf: storeURL) else { return complectionHandler(.empty) }
         let decorder = JSONDecoder()
-        let json = try! decorder.decode(encoderItem.self, from: data)
+        let json = try! decorder.decode(Cache.self, from: data)
         complectionHandler(.found(feed: json.item, timestamp: json.timespam))
     }
     func insertItem(_ item: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
         
        let encoder = JSONEncoder()
-       let encode = try! encoder.encode(encoderItem(item: item, timespam: timestamp))
+       let encode = try! encoder.encode(Cache(item: item, timespam: timestamp))
      //  guard let storeURL = storeURL else { return }
        try! encode.write(to: storeURL)
         completion(nil)
