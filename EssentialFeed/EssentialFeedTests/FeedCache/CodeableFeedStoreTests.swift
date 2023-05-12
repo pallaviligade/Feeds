@@ -88,22 +88,23 @@ final class CodeableFeedStoreTests: XCTestCase {
     func test_retrive_hasNosideEffectsOnemptyCacheTwice()
     {
         let sut = makeSUT()
-        let exp = expectation(description: "wait till expectation")
-        
-       
-        sut.retrival { firstResult in
-            sut.retrival { secondResult in
-                switch (firstResult, secondResult) {
-                case (.empty, .empty):
-                    break
-                default:
-                    XCTFail("Expected retrieving twice from empty cache to deliver same empty result, got \(firstResult) and \(secondResult) instead")
-                    
-                }
-                exp.fulfill()
-            }
-        }
-        wait(for: [exp], timeout: 1.0)
+     //   let exp = expectation(description: "wait till expectation")
+        expact(sut, toRetive: .empty)
+        expact(sut, toRetive: .empty)
+
+//        sut.retrival { firstResult in
+//            sut.retrival { secondResult in
+//                switch (firstResult, secondResult) {
+//                case (.empty, .empty):
+//                    break
+//                default:
+//                    XCTFail("Expected retrieving twice from empty cache to deliver same empty result, got \(firstResult) and \(secondResult) instead")
+//
+//                }
+//                exp.fulfill()
+//            }
+//        }
+//        wait(for: [exp], timeout: 1.0)
     }
     func test_retrieveAfterInsertingToEmptyCache_deliversInsertedValues() {
         
@@ -116,16 +117,6 @@ final class CodeableFeedStoreTests: XCTestCase {
         sut.insertItem(feed.localitems, timestamp: timespam) { insertionError in
             XCTAssertNil(insertionError, "item  insertion fails got this error")
             exp.fulfill()
-//            sut.retrival { result in
-//                switch result {
-//                case let .found(feed: retivalFeed, timestamp: retivalsTimespam):
-//                    XCTAssertEqual(retivalFeed, feed.localitems)
-//                    XCTAssertEqual(retivalsTimespam, timespam)
-//                default:
-//                 XCTFail("expected found result  with \(feed) & timesapma\(timespam) and got result \(result)")
-//                }
-//                exp.fulfill()
-//            }
             
         }
         wait(for: [exp], timeout: 1.0)
