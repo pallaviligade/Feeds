@@ -10,6 +10,12 @@ import EssentialFeed
 
 class CodableFeedStore {
     
+    let storeURL: URL
+    
+    init (_ store:  URL) {
+        self.storeURL = store
+    }
+    
    private struct Cache: Codable {
         let item: [CodebaleFeedImage]
         let timespam: Date
@@ -39,7 +45,7 @@ class CodableFeedStore {
     }
 
     
-    private let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
+   // private let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
     
     func retrival(complectionHandler:@escaping FeedStore.RetrievalCompletion) {
         guard let data  =  try? Data(contentsOf: storeURL) else { return complectionHandler(.empty) }
@@ -62,22 +68,20 @@ class CodableFeedStore {
 
 final class CodeableFeedStoreTests: XCTestCase {
 
-    override class func setUp() {
+    override func setUp() {
         super.setUp()
-        let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
-      try? FileManager.default.removeItem(at: storeURL)
+        deleteStoreArtifcate()
     }
     
     override func tearDown() {
         super.tearDown()
-         let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
-       try? FileManager.default.removeItem(at: storeURL)
+        deleteStoreArtifcate()
     }
     
     
     
     func test_retrive_deliveryEmptyCache() {
-        let sut = CodableFeedStore()
+        let sut = makeSUT()
         let exp = expectation(description: "wait till expectation")
         
         sut.retrival { result in
@@ -94,7 +98,7 @@ final class CodeableFeedStoreTests: XCTestCase {
     
     func test_retrive_hasNosideEffectsOnemptyCacheTwice()
     {
-        let sut = CodableFeedStore()
+        let sut = makeSUT()
         let exp = expectation(description: "wait till expectation")
         
        
@@ -114,7 +118,7 @@ final class CodeableFeedStoreTests: XCTestCase {
     }
     func test_retrieveAfterInsertingToEmptyCache_deliversInsertedValues() {
         
-        let sut = CodableFeedStore()
+        let sut = makeSUT()
         let feed = uniqueItems()
         let timespam =  Date()
         
@@ -138,6 +142,21 @@ final class CodeableFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         
+    }
+    
+    private func makeSUT( file: StaticString = #file, line: UInt = #line) -> CodableFeedStore  {
+        let sut = CodableFeedStore(stupTestURL())
+        trackForMemoryLeaks(sut,file: file, line: line)
+        return sut
+    }
+    
+    private func deleteStoreArtifcate() {
+        try? FileManager.default.removeItem(at: stupTestURL())
+    }
+    
+    private func stupTestURL() -> URL  {
+        let storeURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("\(type(of: self)).store")
+        return storeURL
     }
     
 }
