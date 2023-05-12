@@ -76,8 +76,14 @@ class CodableFeedStore {
         guard FileManager.default.fileExists(atPath: storeURL.path) else {
            return completion(nil)
         }
-        try! FileManager.default.removeItem(atPath: storeURL.absoluteString)
-        completion(anyError())
+        do{
+            try FileManager.default.removeItem(at: storeURL)
+            completion(nil)
+        }catch  {
+            completion(anyError())
+        }
+      
+       
     }
 }
 
@@ -222,7 +228,21 @@ final class CodeableFeedStoreTests: XCTestCase {
         expact(sut, toRetive: .empty)
         
     }
+    func test_delete_emptiesPreviouslyInsertedCache() {
+            let sut = makeSUT()
+            insert((uniqueItems().localitems, Date()), to: sut)
+
+            let exp = expectation(description: "Wait for cache deletion")
+            sut.deleteCachedFeed { deletionError in
+                XCTAssertNil(deletionError, "Expected non-empty cache deletion to succeed")
+                exp.fulfill()
+            }
+            wait(for: [exp], timeout: 1.0)
+
+        expact(sut, toRetive: .empty)
+        }
     
+    @discardableResult
     private func insert(_ cache:(feed: [LocalFeedImage], timespam: Date), to sut:CodableFeedStore) ->  Error?
     {
         let exp = expectation(description: "wait till expections")
