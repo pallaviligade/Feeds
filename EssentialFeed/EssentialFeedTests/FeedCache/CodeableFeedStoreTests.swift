@@ -8,84 +8,6 @@
 import XCTest
 import EssentialFeed
 
-class CodableFeedStore {
- 
-    private struct Cache: Codable {
-        let item: [CodebaleFeedImage]
-        let timespam: Date
-       
-       var localFeed: [LocalFeedImage] {
-           return item.map {$0.local }
-       }
-       
-    }
-    
-    private struct CodebaleFeedImage: Codable {
-        private  let id: UUID
-        private let description: String?
-        private let location: String?
-        private let url: URL
-        
-        init(_ image:LocalFeedImage) {
-            id = image.id
-            description = image.description
-            location = image.location
-            url = image.url
-        }
-        
-        var local: LocalFeedImage {
-            return LocalFeedImage(id: id, description: description, location: location, url: url)
-        }
-    }
-
-    private let storeURL: URL
-     
-     init (_ store:  URL) {
-         self.storeURL = store
-     }
-    
-   // private let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
-    
-    func retrival(complectionHandler:@escaping FeedStore.RetrievalCompletion) {
-        guard let data  =  try? Data(contentsOf: storeURL) else { return complectionHandler(.empty) }
-        let decorder = JSONDecoder()
-        do{
-            let json = try decorder.decode(Cache.self, from: data)
-            complectionHandler(.found(feed: json.localFeed, timestamp: json.timespam))
-        }catch {
-            complectionHandler(.failure(error))
-        }
-    }
-    func insertItem(_ item: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
-        
-        do{
-            let encoder = JSONEncoder()
-             let caches = Cache(item: item.map(CodebaleFeedImage.init), timespam: timestamp)
-            let encode = try encoder.encode(caches)
-          //  guard let storeURL = storeURL else { return }
-            try encode.write(to: storeURL)
-             completion(nil)
-        }catch {
-            completion(error)
-        }
-      
-        
-    }
-    func deleteCachedFeed(completion: @escaping FeedStore.DeletionCompletion){
-        
-        guard FileManager.default.fileExists(atPath: storeURL.path) else {
-           return completion(nil)
-        }
-        do{
-            try FileManager.default.removeItem(at: storeURL)
-            completion(nil)
-        }catch  {
-            completion(anyError())
-        }
-      
-       
-    }
-}
 
 final class CodeableFeedStoreTests: XCTestCase {
 
@@ -181,12 +103,17 @@ final class CodeableFeedStoreTests: XCTestCase {
     }
     
     func test_retrivals_deliveryFailourOnRetrivalError() {
-        let storeURL = stupTestURL() // Given store URL
+       
+        let storeURL = testSpecificStoreURL() // Given store URL
         let sut = makeSUT(storeURL: storeURL) //  with SUT
+        do{
+            try "invaild data".write(to: storeURL, atomically: false, encoding: .utf8) // When
+            expact(sut, toRetive: .failure(anyError())) // We expact it will failour
+        }catch {
+            XCTFail("while writing error occured")
+        }
         
-        try! "invaild data".write(to: storeURL, atomically: true, encoding: .utf8) // When
-        
-        expact(sut, toRetive: .failure(anyError())) // We expact it will failour
+       
         
         
     }
@@ -231,8 +158,20 @@ final class CodeableFeedStoreTests: XCTestCase {
         XCTAssertNil(deletionError, "Expected non-empty cache deletion to succeed")
         expact(sut, toRetive: .empty)
       }
+    func test_delete_deliversErrorOnDeletionError() {
+            let noDeletePermissionURL = cachesDirectory()
+            let sut = makeSUT(storeURL: noDeletePermissionURL)
+
+            let deletionError = deleteCache(from: sut)
+
+            XCTAssertNotNil(deletionError, "Expected cache deletion to fail")
+        expact(sut, toRetive: .empty)
+        }
     
-    private func deleteCache(from sut: CodableFeedStore) -> Error? {
+
+       
+    
+    private func deleteCache(from sut: FeedStore) -> Error? {
         
         let exp = expectation(description: "wait till expections")
         var deletionError: Error?
@@ -241,12 +180,12 @@ final class CodeableFeedStoreTests: XCTestCase {
             deletionError = recivedDeletionError
             exp.fulfill()
         })
-        wait(for: [exp], timeout: 1.0)
+        wait(for: [exp], timeout: 2.0)
         return deletionError
     }
     
     @discardableResult
-    private func insert(_ cache:(feed: [LocalFeedImage], timespam: Date), to sut:CodableFeedStore) ->  Error?
+    private func insert(_ cache:(feed: [LocalFeedImage], timespam: Date), to sut:FeedStore) ->  Error?
     {
         let exp = expectation(description: "wait till expections")
         var insertionError: Error?
@@ -259,7 +198,7 @@ final class CodeableFeedStoreTests: XCTestCase {
         return insertionError
         
     }
-    private func expact(_ sut:CodableFeedStore, toRetive expectedResult:RetrivalsCachedFeedResult ,file: StaticString = #file, line: UInt = #line) {
+    private func expact(_ sut:FeedStore, toRetive expectedResult:RetrivalsCachedFeedResult ,file: StaticString = #file, line: UInt = #line) {
         let exp = expectation(description: "wait till expectation")
            sut.retrival { retrievedResult in
                 switch (retrievedResult, expectedResult) {
@@ -281,19 +220,21 @@ final class CodeableFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
-    private func makeSUT(storeURL: URL? = nil,  file: StaticString = #file, line: UInt = #line) -> CodableFeedStore  {
-        let sut = CodableFeedStore(storeURL ?? stupTestURL())
+    private func makeSUT(storeURL: URL? = nil,  file: StaticString = #file, line: UInt = #line) -> FeedStore  {
+        let sut = CodableFeedStore(storeURL ?? testSpecificStoreURL())
         trackForMemoryLeaks(sut,file: file, line: line)
         return sut
     }
     
     private func deleteStoreArtifcate() {
-        try? FileManager.default.removeItem(at: stupTestURL())
+        try? FileManager.default.removeItem(at: testSpecificStoreURL())
     }
     
-    private func stupTestURL() -> URL  {
-        let storeURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("\(type(of: self)).store")
-        return storeURL
+   
+    private func testSpecificStoreURL() -> URL {
+            return cachesDirectory().appendingPathComponent("\(type(of: self)).store")
+        }
+    private func cachesDirectory() -> URL {
+        return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
     }
-    
 }
