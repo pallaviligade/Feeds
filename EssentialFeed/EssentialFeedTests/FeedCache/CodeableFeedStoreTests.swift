@@ -165,7 +165,7 @@ final class CodeableFeedStoreTests: XCTestCase {
             let deletionError = deleteCache(from: sut)
 
             XCTAssertNotNil(deletionError, "Expected cache deletion to fail")
-        expact(sut, toRetive: .empty)
+           expact(sut, toRetive: .empty)
         }
     
     func test_storeSideEffect_RunSerily() {
