@@ -10,22 +10,26 @@ import EssentialFeed
 
 protocol FeedStoreSpec {
     func test_retrive_deliveryEmptyCache()
-    func test_retrive_hasNosideEffectsOnemptyCacheTwice()
-    func test_retrieveAfterInsertingToEmptyCache_deliversInsertedValues()
-    func test_retrivals_hasNoSideEffectsOnEmptyCache()
+    func test_retrieve_hasNoSideEffectsOnEmptyCache()
+    func test_retrieve_deliversFoundValuesOnNonEmptyCache()
+   // func test_retrive_hasNosideEffectsOnemptyCacheTwice()
+   // func test_retrieveAfterInsertingToEmptyCache_deliversInsertedValues()
    
-    
+   
+    func test_insert_deliversNoErrorOnEmptyCache()
+    func test_insert_deliversNoErrorOnNonEmptyCache()
     func test_insert_overidesPreviouslyInsertedCache()
    
 
     func test_delete_HasNoSideEffectOnEmptyCache()
     func test_delete_emptiesPreviouslyInsertedCache()
-   
+    func test_delete_deliversNoErrorOnEmptyCache()
+    func test_delete_deliversNoErrorOnNonEmptyCache()
     
     func test_storeSideEffect_RunSerily()
 }
 protocol FailableRetrivalFeedStoreSpecs {
-    func test_retrivals_deliveryFailourOnRetrivalError()
+    func test_retrieve_deliversFailureOnRetrievalError()
     func test_retrieve_hasNoSideEffectsOnFailure()
 }
 protocol FailableInsertFeedStoreSpecs {
@@ -35,6 +39,7 @@ protocol FailableInsertFeedStoreSpecs {
 
 protocol DeleteFeedStoreSpecs {
     func test_delete_deliversErrorOnDeletionError()
+    func test_delete_hasNoSideEffectsOnDeletionError()
 }
 final class CodeableFeedStoreTests: XCTestCase {
 
@@ -55,7 +60,30 @@ final class CodeableFeedStoreTests: XCTestCase {
         
         expact(sut, toRetive: .empty)
     }
-    
+    func test_retrieve_hasNoSideEffectsOnEmptyCache() {
+            let sut = makeSUT()
+
+            expect(sut, toRetrieveTwice: .empty)
+        }
+    func test_retrieve_deliversFoundValuesOnNonEmptyCache() {
+            let sut = makeSUT()
+        let feed = uniqueItems().localitems
+            let timestamp = Date()
+
+            insert((feed, timestamp), to: sut)
+
+        expact(sut, toRetive: .found(feed: feed, timestamp: timestamp))
+        }
+    func test_retrieve_hasNoSideEffectsOnNonEmptyCache() {
+            let sut = makeSUT()
+            let feed =  uniqueItems().localitems
+            let timestamp = Date()
+
+            insert((feed, timestamp), to: sut)
+
+        expect(sut, toRetrieveTwice: .found(feed: feed, timestamp: timestamp))
+        }
+  /*
     func test_retrive_hasNosideEffectsOnemptyCacheTwice()
     {
         let sut = makeSUT()
@@ -127,9 +155,9 @@ final class CodeableFeedStoreTests: XCTestCase {
         }
         wait(for: [exp], timeout: 1.0)
         
-    }
+    }*/
     
-    func test_retrieve_hasNoSideEffectsOnFailure() {
+    func test_retrieve_deliversFailureOnRetrievalError() {
        
         let storeURL = testSpecificStoreURL() // Given store URL
         let sut = makeSUT(storeURL: storeURL) //  with SUT
@@ -139,6 +167,14 @@ final class CodeableFeedStoreTests: XCTestCase {
         }catch {
             XCTFail("while writing error occured")
         }
+    }
+    func test_retrieve_hasNoSideEffectsOnFailure()  {
+        let storeURL = testSpecificStoreURL()
+                let sut = makeSUT(storeURL: storeURL)
+
+                try! "invalid data".write(to: storeURL, atomically: false, encoding: .utf8)
+
+                expect(sut, toRetrieveTwice: .failure(anyError()))
     }
     func test_insert_deliversNoErrorOnEmptyCache() {
             let sut = makeSUT()
@@ -156,17 +192,32 @@ final class CodeableFeedStoreTests: XCTestCase {
 
             XCTAssertNil(insertionError, "Expected to override cache successfully")
         }
-    func test_insert_overidesPreviouslyInsertedCache(){
-        let sut = makeSUT()
+    func test_insert_overidesPreviouslyInsertedCache()
+    {
+        /*let sut = makeSUT()
         insert((uniqueItems().localitems,Date()), to: sut)
-        
+
         let latestFeed = uniqueItems().localitems
         let latestTimestamp = Date()
         insert((latestFeed, latestTimestamp), to: sut)
+
+        expact(sut, toRetive: .found(feed: latestFeed, timestamp: latestTimestamp))*/
         
-        expact(sut, toRetive: .found(feed: latestFeed, timestamp: latestTimestamp))
-   
+        let sut = makeSUT()
+
+                let firstInsertionError = insert((uniqueItems().localitems, Date()), to: sut)
+                XCTAssertNil(firstInsertionError, "Expected to insert cache successfully")
+
+                let latestFeed = uniqueItems().localitems
+                let latestTimestamp = Date()
+                let latestInsertionError = insert((latestFeed, latestTimestamp), to: sut)
+
+                XCTAssertNil(latestInsertionError, "Expected to override cache successfully")
+        expact(sut, toRetive: .found(feed: latestFeed, timestamp: latestTimestamp)
+               
     }
+   
+    
 
     func test_insert_deliveryErrorOnInsertionError() {
         let invalidaURL = URL(string: "invalid://store-url")!
@@ -298,6 +349,12 @@ final class CodeableFeedStoreTests: XCTestCase {
         return insertionError
         
     }
+    
+    private func expect(_ sut: FeedStore, toRetrieveTwice expectedResult: RetrivalsCachedFeedResult, file: StaticString = #file, line: UInt = #line) {
+        expact(sut, toRetive: expectedResult, file: file, line: line)
+        expact(sut, toRetive: expectedResult, file: file, line: line)
+        }
+    
     private func expact(_ sut:FeedStore, toRetive expectedResult:RetrivalsCachedFeedResult ,file: StaticString = #file, line: UInt = #line) {
         let exp = expectation(description: "wait till expectation")
            sut.retrival { retrievedResult in
