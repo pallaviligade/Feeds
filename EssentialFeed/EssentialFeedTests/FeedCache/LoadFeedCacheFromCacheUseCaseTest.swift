@@ -30,7 +30,7 @@ final class LoadFeedCacheFromCacheUseCaseTest: XCTestCase {
     func test_loadFailsOnretrivalError() {
         
         let ( sut,store) = makeSUT()
-        var retrievalError = anyError()
+        let retrievalError = anyError()
                 
         exptact(sut, tocompleteWith: .failure(retrievalError)) {
             store.completeRetrieval(with: retrievalError)
