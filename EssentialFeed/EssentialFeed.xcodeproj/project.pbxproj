@@ -34,6 +34,7 @@
 		8EB3FA1A29F5360300515F45 /* RemoteFeedLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB3FA1929F5360300515F45 /* RemoteFeedLoader.swift */; };
 		8EC8C6862A0EA18D009EC411 /* CodableFeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC8C6852A0EA18D009EC411 /* CodableFeedStore.swift */; };
 		8EC8C6882A121E6A009EC411 /* FeedStoreSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC8C6872A121E6A009EC411 /* FeedStoreSpec.swift */; };
+		8EC8C68A2A123A56009EC411 /* XCTestCase+FeedStoreSepcs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC8C6892A123A56009EC411 /* XCTestCase+FeedStoreSepcs.swift */; };
 		8EDE08922A0138D50063D6CB /* XCTestCase+Memoryleaks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EDE08912A0138D50063D6CB /* XCTestCase+Memoryleaks.swift */; };
 /* End PBXBuildFile section */
 
@@ -83,6 +84,7 @@
 		8EB3FA1929F5360300515F45 /* RemoteFeedLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFeedLoader.swift; sourceTree = "<group>"; };
 		8EC8C6852A0EA18D009EC411 /* CodableFeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableFeedStore.swift; sourceTree = "<group>"; };
 		8EC8C6872A121E6A009EC411 /* FeedStoreSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStoreSpec.swift; sourceTree = "<group>"; };
+		8EC8C6892A123A56009EC411 /* XCTestCase+FeedStoreSepcs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+FeedStoreSepcs.swift"; sourceTree = "<group>"; };
 		8EDE08912A0138D50063D6CB /* XCTestCase+Memoryleaks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Memoryleaks.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -203,6 +205,7 @@
 				8EAFADCA2A0A703000FBDC5D /* LoadFeedCacheFromCacheUseCaseTest.swift */,
 				8E5A866F2A0BC2910070F08B /* ValidateFeedCacheUseCaseTests.swift */,
 				8E4DDD2B2A0CFF7900E3E138 /* CodeableFeedStoreTests.swift */,
+				8EC8C6892A123A56009EC411 /* XCTestCase+FeedStoreSepcs.swift */,
 			);
 			path = FeedCache;
 			sourceTree = "<group>";
@@ -407,6 +410,7 @@
 				8E5A866E2A0BC1870070F08B /* CacheFeedUseCaseHelpers.swift in Sources */,
 				8EB0A91B29F2C3C00079A3BD /* RemoteFeedLoaderTest.swift in Sources */,
 				8EAFADCD2A0A707300FBDC5D /* FeedStoreSpy.swift in Sources */,
+				8EC8C68A2A123A56009EC411 /* XCTestCase+FeedStoreSepcs.swift in Sources */,
 				8E5A86702A0BC2910070F08B /* ValidateFeedCacheUseCaseTests.swift in Sources */,
 				8EB14B5B29FE4648002B0A31 /* URLSessionHTTPClientTest.swift in Sources */,
 				8EB09F202A03DFFC0019AE31 /* CacheFeedUseCaseTests.swift in Sources */,
