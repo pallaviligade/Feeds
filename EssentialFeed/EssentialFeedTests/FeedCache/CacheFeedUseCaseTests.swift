@@ -72,11 +72,14 @@ final class CacheFeedUseCaseTests: XCTestCase {
         let (sut, store) = makeSUT()
         let deletionError = anyError()
         
-        let exp = expectation(description: "wait unti")
+        let exp = expectation(description: "wait for save completions")
         var recviedError: Error?
         
-        sut.save(uniqueItems().models) { error  in
+        sut.save(uniqueItems().models) { result  in
+            if case let Result.failure(error)  = result
+            {
             recviedError = error
+            }
             exp.fulfill()
         }
         store.completeDeletion(with: deletionError)// when
@@ -94,8 +97,11 @@ final class CacheFeedUseCaseTests: XCTestCase {
         let exp = expectation(description: "wait unti")
         var recviedError: Error?
         
-        sut.save(uniqueItems().models) { error  in
-            recviedError = error
+        sut.save(uniqueItems().models) { result  in
+            if case let  Result.failure(error) = result
+            {
+                recviedError = error
+            }
             exp.fulfill()
         }
         store.completeDeletionSuccessFully()
@@ -113,8 +119,11 @@ final class CacheFeedUseCaseTests: XCTestCase {
         let exp = expectation(description: "wait unti")
         var recviedError: Error?
         
-        sut.save(uniqueItems().models) { error  in
-            recviedError = error
+        sut.save(uniqueItems().models) { result  in
+            if case let Result.failure(error) = result
+            {
+                recviedError = error
+            }
             exp.fulfill()
         }
         store.completeDeletionSuccessFully()

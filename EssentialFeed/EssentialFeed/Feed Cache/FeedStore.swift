@@ -17,10 +17,10 @@ public enum CachedFeed {
 public protocol FeedStore {
      typealias  RetrivalsResult = Result<CachedFeed, Error>
 
-    typealias DeletionResult = Error?
+    typealias DeletionResult = Result<Void,Error>
     typealias DeletionCompletion = (DeletionResult) -> Void
     
-    typealias InsertionResult = Error?
+    typealias InsertionResult = Result<Void,Error>
     typealias InsertionCompletion = (InsertionResult) -> Void
     
     typealias RetrievalCompletion = (RetrivalsResult) -> Void
