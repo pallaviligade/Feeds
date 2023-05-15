@@ -17,8 +17,12 @@ public enum CachedFeed {
 public protocol FeedStore {
      typealias  RetrivalsResult = Result<CachedFeed, Error>
 
-    typealias DeletionCompletion = (Error?) -> Void
-    typealias InsertionCompletion = (Error?) -> Void
+    typealias DeletionResult = Error?
+    typealias DeletionCompletion = (DeletionResult) -> Void
+    
+    typealias InsertionResult = Error?
+    typealias InsertionCompletion = (InsertionResult) -> Void
+    
     typealias RetrievalCompletion = (RetrivalsResult) -> Void
     
     /// The completion handler can be invoked in any thread.
