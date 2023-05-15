@@ -92,7 +92,7 @@ final class URLSessionHTTPClientTest : XCTestCase {
     }
     
     func test_getFromURL_succeedsWithEmptyDataOnHTTPURLResponseWithNilData(){
-        let passedData  = anyData()
+        let _  = anyData()
         let passedRespone =  HTTPURLResponse(url: anyURL(), statusCode: 200, httpVersion: nil, headerFields: nil)!
         URLProtocolStub.stub(data: nil, response:passedRespone , error: nil)
         
@@ -158,7 +158,7 @@ final class URLSessionHTTPClientTest : XCTestCase {
     }
     
     private func anyData() ->  Data  {
-        return  Data(bytes: "anystring".utf8)
+        return  Data("anystring".utf8)
     }
     private func nonHTTPResponse() -> URLResponse {
         return URLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
