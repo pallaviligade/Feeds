@@ -48,11 +48,11 @@ public class CodableFeedStore: FeedStore {
     public func retrival(complectionHandler:@escaping FeedStore.RetrievalCompletion) {
         let storeURL = self.storeURL
         queue.async {
-            guard let data  =  try? Data(contentsOf: storeURL) else { return complectionHandler(.empty) }
+            guard let data  =  try? Data(contentsOf: storeURL) else { return complectionHandler(.success(.empty)) }
             let decorder = JSONDecoder()
             do{
                 let json = try decorder.decode(Cache.self, from: data)
-                complectionHandler(.found(feed: json.localFeed, timestamp: json.timespam))
+                complectionHandler(.success(.found(feed: json.localFeed, timestamp: json.timespam)))
             }catch {
                 complectionHandler(.failure(error))
             }
