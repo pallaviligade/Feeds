@@ -21,12 +21,13 @@ class FeedViewController: UITableViewController
         super.viewDidLoad()
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
-        refreshControl?.beginRefreshing()
+       
        load()
     }
     
    @objc func load()
     {
+        refreshControl?.beginRefreshing()
         loader?.load{ [weak self] result in
            guard let self = self else { return }
             self.refreshControl?.endRefreshing()
@@ -36,54 +37,36 @@ class FeedViewController: UITableViewController
 
 final class FeedViewControllerTests: XCTestCase {
     
-    func test_init_loaderCount(){
-        let (_, loader) = makeSUT()
-        
-        XCTAssertEqual(loader.loadCallCount, 0)
-    }
-    
-    func test_viewDidLoad_loadsFeed() {
+    func test_loadFeedActions_requestFeedFromLoader(){
         let (sut, loader) = makeSUT()
-        
+        XCTAssertEqual(loader.loadCallCount, 0, "Expected no loading requests before view is loaded")
+   
         sut.loadViewIfNeeded()
+        XCTAssertEqual(loader.loadCallCount, 1, "Expected a loading request once view is loaded")
+    
+        sut.simulateUserInitiatedFeedReload()
+        XCTAssertEqual(loader.loadCallCount, 2, "Expected another loading request once user initiates a reload")
         
-        XCTAssertEqual(loader.loadCallCount, 1)
+        sut.simulateUserInitiatedFeedReload()
+        XCTAssertEqual(loader.loadCallCount, 3,"Expected yet another loading request once user initiates another reload")
+        
     }
     
-    func test_pullToRefersh_loadFresh(){
-        
+    func test_loadingFeedIndicator_isVisibleWhileLoadingFeed() {
         let (sut, loader) = makeSUT()
-        sut.refreshControl?.simulatePullRequest()
-        XCTAssertEqual(loader.loadCallCount, 2)
-        
-        sut.refreshControl?.simulatePullRequest()
-        XCTAssertEqual(loader.loadCallCount, 3)
-        
-    }
-    
-    func test_viewDidLoad_showLoadingIndicator() {
-        let (sut, _) = makeSUT()
 
         sut.loadViewIfNeeded()
+        XCTAssertTrue(sut.isShowingloadingIndicator, "Expected loading indicator once view is loaded")
         
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, true)
-    }
-    
-    func test_viewDidLoad_hidesloadingIndicatoreOnloaderCompletions() {
-        let (sut, loader) = makeSUT()
+      
+        loader.completeFeedloading(at: 0)
+        XCTAssertFalse(sut.isShowingloadingIndicator,"Expected no loading indicator once loading is completed")
+   
+        sut.simulateUserInitiatedFeedReload()
+        XCTAssertTrue(sut.isShowingloadingIndicator,"Expected loading indicator once user initiates a reload")
         
-        sut.loadViewIfNeeded()
-        loader.completeFeedloading()
-        
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
-    }
-    
-    func test_pullToRefresh_showsLoadingIndicator() {
-        let (sut, _) = makeSUT()
-        
-        sut.refreshControl?.simulatePullRequest()
-        
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, true)
+        loader.completeFeedloading(at: 1)
+         XCTAssertFalse(sut.isShowingloadingIndicator, "Expected no loading indicator once user initiated loading is completed")
     }
     
     func makeSUT(file: StaticString = #file, line: UInt = #line ) -> (sut:FeedViewController, loader: FeedViewSpy) {
@@ -107,15 +90,25 @@ final class FeedViewControllerTests: XCTestCase {
             completionHander.append(completion)
         }
         
-        func completeFeedloading() {
-            completionHander[0](.success([]))
+        func completeFeedloading(at index:Int) {
+            completionHander[index](.success([]))
         }
          
     }
 }
 
+private extension FeedViewController {
+    func simulateUserInitiatedFeedReload() {
+            refreshControl?.simulatePullToRefresh()
+        }
+    
+    var isShowingloadingIndicator:Bool {
+        return refreshControl?.isRefreshing == true
+    }
+}
+
 extension UIRefreshControl {
-    func simulatePullRequest() {
+    func simulatePullToRefresh() {
       allTargets.forEach { target in
                     actions(forTarget: target, forControlEvent: .valueChanged)?.forEach {
                         (target as NSObject).perform(Selector($0))
