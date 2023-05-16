@@ -20,13 +20,17 @@ class FeedViewController: UITableViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         refreshControl = UIRefreshControl()
-                refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
-                load()
+        refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
+        refreshControl?.beginRefreshing()
+       load()
     }
     
    @objc func load()
     {
-        loader?.load{ _ in }
+        loader?.load{ [weak self] result in
+           guard let self = self else { return }
+            self.refreshControl?.endRefreshing()
+        }
     }
 }
 
@@ -55,8 +59,25 @@ final class FeedViewControllerTests: XCTestCase {
         sut.refreshControl?.simulatePullRequest()
         XCTAssertEqual(loader.loadCallCount, 3)
         
-        
     }
+    
+    func test_viewDidLoad_showLoadingIndicator() {
+        let (sut, _) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        
+        XCTAssertEqual(sut.refreshControl?.isRefreshing, true)
+    }
+    
+    func test_viewDidLoad_hidesloadingIndicatoreOnloaderCompletions() {
+        let (sut, loader) = makeSUT()
+        
+        sut.loadViewIfNeeded()
+        loader.completeFeedloading()
+        
+        XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
+    }
+    
     func makeSUT(file: StaticString = #file, line: UInt = #line ) -> (sut:FeedViewController, loader: FeedViewSpy) {
         let loader = FeedViewSpy()
         let sut  = FeedViewController(loader: loader)
@@ -69,10 +90,17 @@ final class FeedViewControllerTests: XCTestCase {
     class FeedViewSpy: FeedLoader{
        
         
-         private(set) var loadCallCount: Int = 0
+        private var completionHander = [(FeedLoader.Result) -> Void] ()
+        var loadCallCount: Int {
+            return completionHander.count
+        }
         
         func load(completion: @escaping (FeedLoader.Result) -> Void) {
-            loadCallCount += 1
+            completionHander.append(completion)
+        }
+        
+        func completeFeedloading() {
+            completionHander[0](.success([]))
         }
          
     }
