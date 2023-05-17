@@ -53,22 +53,31 @@ final class FeedViewControllerTests: XCTestCase {
 
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
-        XCTAssertEqual(sut.numberOfRenderFeedImageView(), 0) // Check the count(0) only there is no values
+        assertThat(sut, isRendering: []) // Check the count(0) only there is no values
         
         loader.completeFeedloading(with: [imageO], at: 0)
-        XCTAssertEqual(sut.numberOfRenderFeedImageView(), 1) // Check the count (1)only there is  values too
-        assertThat(sut, hasViewConfiguartions: imageO, at: 0)
+        assertThat(sut, isRendering: [imageO]) // Check the count (1)only there is  values too
         
         sut.simulateUserInitiatedFeedReload()
         loader.completeFeedloading(with: [imageO,image1,image2,image3], at: 1) // Check the count(4) only there is  values too
-        XCTAssertEqual(sut.numberOfRenderFeedImageView(), 4)
-        assertThat(sut, hasViewConfiguartions: imageO, at: 0)
-        assertThat(sut, hasViewConfiguartions: imageO, at: 1)
-        assertThat(sut, hasViewConfiguartions: imageO, at: 2)
-        assertThat(sut, hasViewConfiguartions: imageO, at: 3)
+       assertThat(sut, isRendering: [imageO,image1,image2,image3])
        
        
 
+    }
+    
+    private func assertThat(_ sut: FeedViewController, isRendering feed: [FeedImage],file: StaticString = #file, line: UInt = #line ) {
+        guard sut.numberOfRenderFeedImageView() == feed.count else {
+            XCTFail("Expected \(feed.count) images, got \(sut.numberOfRenderFeedImageView()) instead.", file: file, line: line)
+            return
+        }
+        
+        feed.enumerated().forEach { index, item  in
+            assertThat(sut, hasViewConfiguredFor: item, at: index,file: file,line: line)
+        }
+        
+        
+        
     }
     
     private func assertThat(_ sut: FeedViewController, hasViewConfiguredFor image: FeedImage, at index: Int, file: StaticString = #file, line: UInt = #line) {
@@ -102,9 +111,7 @@ final class FeedViewControllerTests: XCTestCase {
         
     }
     
-    private func assertThat(_ sut: FeedViewController, hasViewConfiguartions image: FeedImage, at index: Int, file: StaticString = #file, line: UInt = #line ) {
-        
-    }
+  
     
     
     //MARK: - Helpers
