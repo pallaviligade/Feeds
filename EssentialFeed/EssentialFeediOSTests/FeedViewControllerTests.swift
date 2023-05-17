@@ -63,7 +63,10 @@ final class FeedViewControllerTests: XCTestCase {
         sut.simulateUserInitiatedFeedReload()
         loader.completeFeedloading(with: [imageO,image1,image2,image3], at: 1)
         XCTAssertEqual(sut.numberOfRenderFeedImageView(), 4)
-        
+        assertThat(sut, hasViewConfiguartions: imageO, at: 0)
+        assertThat(sut, hasViewConfiguartions: imageO, at: 1)
+        assertThat(sut, hasViewConfiguartions: imageO, at: 2)
+        assertThat(sut, hasViewConfiguartions: imageO, at: 3)
        
        
 
