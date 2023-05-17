@@ -47,13 +47,15 @@ final class FeedViewControllerTests: XCTestCase {
     func test_loadFeedCompletions_renderSuccessfullyLoaded()
     {
         let imageO  = makeFeedImage(description: "first item", location: "Berlin")
+        let image1  = makeFeedImage(description: nil, location: "Berlin")
+        let image2  = makeFeedImage(description: "first item", location: nil)
+        let image3  = makeFeedImage(description: nil, location: nil)
+
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
-        
         XCTAssertEqual(sut.numberOfRenderFeedImageView(), 0)
         
-        loader.completeFeedloading(with: [imageO], at: 0)
-        
+        loader.completeFeedloading(with: [imageO], at: 0)        
         XCTAssertEqual(sut.numberOfRenderFeedImageView(), 1)
         
         let view = sut.feedImageView(at: 0) as?  FeedImageCell
@@ -61,6 +63,11 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view?.discrText,imageO.description)
         XCTAssertEqual(view?.locationText,imageO.location)
         XCTAssertEqual(view?.isShowinglocation, true)
+        
+        sut.simulateUserInitiatedFeedReload()
+        loader.completeFeedloading(with: [imageO,image1,image2,image3], at: 1)
+        XCTAssertEqual(sut.numberOfRenderFeedImageView(), 4)
+
     }
     
     
@@ -76,6 +83,10 @@ final class FeedViewControllerTests: XCTestCase {
     {
         let feedImage =  FeedImage(id: UUID(), description: description, location: location, imageURL:URL(string: "https://any-url.com")!)
         return feedImage
+        
+    }
+    
+    private func assertThat(_ sut: FeedViewController, hasViewConfiguartions image: FeedImage, at index: Int, file: StaticString = #file, line: UInt = #line ) {
         
     }
     
