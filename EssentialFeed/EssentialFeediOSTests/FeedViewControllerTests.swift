@@ -55,20 +55,34 @@ final class FeedViewControllerTests: XCTestCase {
         sut.loadViewIfNeeded()
         XCTAssertEqual(sut.numberOfRenderFeedImageView(), 0)
         
-        loader.completeFeedloading(with: [imageO], at: 0)        
+        loader.completeFeedloading(with: [imageO], at: 0)
         XCTAssertEqual(sut.numberOfRenderFeedImageView(), 1)
         
-        let view = sut.feedImageView(at: 0) as?  FeedImageCell
-        XCTAssertNotNil(view)
-        XCTAssertEqual(view?.discrText,imageO.description)
-        XCTAssertEqual(view?.locationText,imageO.location)
-        XCTAssertEqual(view?.isShowinglocation, true)
+       assertThat(sut, hasViewConfiguartions: imageO, at: 0)
         
         sut.simulateUserInitiatedFeedReload()
         loader.completeFeedloading(with: [imageO,image1,image2,image3], at: 1)
         XCTAssertEqual(sut.numberOfRenderFeedImageView(), 4)
+        
+       
+       
 
     }
+    
+    private func assertThat(_ sut: FeedViewController, hasViewConfiguredFor image: FeedImage, at index: Int, file: StaticString = #file, line: UInt = #line) {
+            let view = sut.feedImageView(at: index)
+
+            guard let cell = view as? FeedImageCell else {
+                return XCTFail("Expected \(FeedImageCell.self) instance, got \(String(describing: view)) instead", file: file, line: line)
+            }
+
+            let shouldLocationBeVisible = (image.location != nil)
+            XCTAssertEqual(cell.isShowinglocation, shouldLocationBeVisible, "Expected `isShowingLocation` to be \(shouldLocationBeVisible) for image view at index (\(index))", file: file, line: line)
+
+            XCTAssertEqual(cell.locationText, image.location, "Expected location text to be \(String(describing: image.location)) for image  view at index (\(index))", file: file, line: line)
+
+            XCTAssertEqual(cell.discrText, image.description, "Expected description text to be \(String(describing: image.description)) for image view at index (\(index)", file: file, line: line)
+        }
     
     
     func makeSUT(file: StaticString = #file, line: UInt = #line ) -> (sut:FeedViewController, loader: FeedViewSpy) {
