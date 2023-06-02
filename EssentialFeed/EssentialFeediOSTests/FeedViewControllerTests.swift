@@ -140,6 +140,32 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view1?.isShowingImageLoadingIndicator, false, "Expected no loading indicator for second view once second image loading completes with error")
     }
     
+    func test_feedImageView_RenderLoadedImageFromURL() {
+        let image0 = makeFeedImage(imgurl: URL(string: "http://any0-url.com")!)
+        let image1 = makeFeedImage(imgurl: URL(string: "http://any1-url.com")!)
+        let (sut,  loader) = makeSUT()
+        
+        sut.loadViewIfNeeded()
+        loader.completeFeedloading(with: [image0, image1])
+        let view0 = sut.simulateFeedImageViewVisiable(at: 0)
+        let view1 = sut.simulateFeedImageViewVisiable(at: 1)
+        
+        XCTAssertEqual(view0?.renderImage, .none, "Expected no image for firstView whileloading first image")
+        XCTAssertEqual(view1?.renderImage, .none, "Expected no image for firstView whileloading first image")
+
+        let imageData0 = UIImage.make(withColor: .red).pngData()!
+        loader.compeletImageLoading(with: imageData0, at: 0)
+        XCTAssertEqual(view0?.renderImage, imageData0,"Expected image for first view once first image loading completes successfully")
+        XCTAssertEqual(view1?.renderImage, .none, "Expected no image state change for second view once first image loading completes successfully")
+        
+        let imageData1 = UIImage.make(withColor: .blue).pngData()!
+         loader.compeletImageLoading(with: imageData1, at: 1)
+        XCTAssertEqual(view0?.renderImage, imageData0, "Expected no image state change for first view once second image loading completes successfully")
+         XCTAssertEqual(view1?.renderImage, imageData1, "Expected image for second view once second image loading completes successfully")
+        
+        
+    }
+    
     private func assertThat(_ sut: FeedViewController, isRendering feed: [FeedImage],file: StaticString = #file, line: UInt = #line ) {
         guard sut.numberOfRenderFeedImageView() == feed.count else {
             XCTFail("Expected \(feed.count) images, got \(sut.numberOfRenderFeedImageView()) instead.", file: file, line: line)
@@ -181,19 +207,11 @@ final class FeedViewControllerTests: XCTestCase {
         return feedImage
         
     }
-    
-  
-    
-    
+   
     //MARK: - Helpers
     class FeedViewSpy: FeedLoader, FeedImageDataLoader{
        
-        
-        
-        
-        
-        
-       private var feedRequest = [(FeedLoader.Result) -> Void] ()
+    private var feedRequest = [(FeedLoader.Result) -> Void] ()
      
         var loadFeedCallCount: Int {
             return feedRequest.count
@@ -303,6 +321,10 @@ extension FeedImageCell {
     var isShowingImageLoadingIndicator:Bool {
         return feedImageContainer.isShimmering
     }
+    
+    var renderImage: Data? {
+        return feedImageView.image?.pngData()
+    }
    
 }
 
@@ -313,5 +335,18 @@ extension UIRefreshControl {
                         (target as NSObject).perform(Selector($0))
                     }
                 }
+    }
+}
+
+private extension UIImage {
+    static func make(withColor color: UIColor) -> UIImage {
+        let rect = CGRect(x: 0, y: 0, width: 1, height: 1)
+        UIGraphicsBeginImageContext(rect.size)
+        let context = UIGraphicsGetCurrentContext()!
+        context.setFillColor(color.cgColor)
+        context.fill(rect)
+        let img = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return img!
     }
 }
