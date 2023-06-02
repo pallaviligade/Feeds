@@ -9,8 +9,9 @@ import UIKit
 
 public final class FeedImageCell: UITableViewCell {
 
-   public var locationContainer = UIView()
-   public var discrptionLabel = UILabel()
-   public var locationLabel = UILabel()
+   public let locationContainer = UIView()
+   public let discrptionLabel = UILabel()
+   public let locationLabel = UILabel()
+    public let feedImageContainer = UIView()
     
 }

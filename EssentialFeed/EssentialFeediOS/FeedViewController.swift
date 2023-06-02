@@ -14,20 +14,21 @@ public protocol FeedImageDataLoaderTask {
 }
 
 public protocol FeedImageDataLoader {
-    func loadImageData(from url: URL) -> FeedImageDataLoaderTask
+    typealias Result = Swift.Result <Data, Error>
+    func loadImageData(from url: URL,  completionHandler:@escaping (Result) ->  Void ) -> FeedImageDataLoaderTask
 }
 
 public final  class FeedViewController: UITableViewController
 {
-    private var loader: FeedLoader?
+    private var feedloader: FeedLoader?
     private var tableModel = [FeedImage]()
     private var imageLoder: FeedImageDataLoader?
     
     private(set) var tasks = [IndexPath: FeedImageDataLoaderTask]()
     
-    public convenience init(loader: FeedLoader, imageLoader:  FeedImageDataLoader) {
+    public convenience init(feedloader: FeedLoader, imageLoader:  FeedImageDataLoader) {
         self.init()
-        self.loader = loader
+        self.feedloader = feedloader
         self.imageLoder = imageLoader
     }
     public override func viewDidLoad() {
@@ -40,7 +41,7 @@ public final  class FeedViewController: UITableViewController
    @objc func load()
     {
         refreshControl?.beginRefreshing()
-        loader?.load{ [weak self] result in
+        feedloader?.load{ [weak self] result in
            guard let self = self else { return }
             if let feed  = try? result.get()  {
                 self.tableModel = feed
@@ -60,7 +61,10 @@ public final  class FeedViewController: UITableViewController
         cell.locationContainer.isHidden = (cellModel.location) ==  nil
         cell.discrptionLabel.text = cellModel.description
         cell.locationLabel.text = cellModel.location
-        tasks[indexPath] = imageLoder?.loadImageData(from: cellModel.imageURL)
+        cell.feedImageContainer.startShimmering()
+        tasks[indexPath] = imageLoder?.loadImageData(from: cellModel.imageURL) { [weak cell] result in
+            cell?.feedImageContainer.stopShimmering()
+        }
         return cell
     }
     
