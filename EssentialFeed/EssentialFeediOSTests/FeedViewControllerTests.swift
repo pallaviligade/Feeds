@@ -141,12 +141,11 @@ final class FeedViewControllerTests: XCTestCase {
     }
     
     func test_feedImageView_RenderLoadedImageFromURL() {
-        let image0 = makeFeedImage(imgurl: URL(string: "http://any0-url.com")!)
-        let image1 = makeFeedImage(imgurl: URL(string: "http://any1-url.com")!)
+       
         let (sut,  loader) = makeSUT()
         
         sut.loadViewIfNeeded()
-        loader.completeFeedloading(with: [image0, image1])
+        loader.completeFeedloading(with: [makeFeedImage(), makeFeedImage()])
         let view0 = sut.simulateFeedImageViewVisiable(at: 0)
         let view1 = sut.simulateFeedImageViewVisiable(at: 1)
         
@@ -202,7 +201,29 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view0?.isShowingRetryAction, true, "Expected retry action once image loading completes with invalid image data")
         
      }
-    
+    func test_feedImageViewRetryAction_retriesImageLoad() {
+        let image0 = makeFeedImage(imgurl: URL(string: "http://any0-url.com")!)
+        let image1 = makeFeedImage(imgurl: URL(string: "http://any1-url.com")!)
+        let (sut,  loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedloading(with: [image0, image1])
+        let view0 = sut.simulateFeedImageViewVisiable(at: 0)
+        let view1 = sut.simulateFeedImageViewVisiable(at: 1)
+        XCTAssertEqual(loader.loadedImageUrls, [image0.imageURL, image1.imageURL],"Expected 2 image URL request for 2 visable views")
+        
+        loader.completeImageLoadingWithError(at: 0)
+        loader.completeImageLoadingWithError(at: 1)
+        XCTAssertEqual(loader.loadedImageUrls, [image0.imageURL, image1.imageURL],"Expected 2 image URL requests before retry actions")
+        
+        view0?.simulateRetryActions()
+        XCTAssertEqual(loader.loadedImageUrls, [image0.imageURL, image1.imageURL, image0.imageURL],"Expected third imageURL request after first view retry action")
+        
+        view1?.simulateRetryActions()
+        XCTAssertEqual(loader.loadedImageUrls, [image0.imageURL, image1.imageURL, image0.imageURL, image1.imageURL],"Expected fourth imageURL request after second view retry action")
+        
+        
+    }
     private func assertThat(_ sut: FeedViewController, isRendering feed: [FeedImage],file: StaticString = #file, line: UInt = #line ) {
         guard sut.numberOfRenderFeedImageView() == feed.count else {
             XCTFail("Expected \(feed.count) images, got \(sut.numberOfRenderFeedImageView()) instead.", file: file, line: line)
@@ -343,6 +364,10 @@ private extension FeedViewController {
 }
 
 extension FeedImageCell {
+    
+    func simulateRetryActions() {
+        feedImageRetryButton.simulateToTap()
+    }
     var discrText:String? {
         return discrptionLabel.text
     }
@@ -367,6 +392,16 @@ extension FeedImageCell {
         return !feedImageRetryButton.isHidden
     }
    
+}
+
+extension UIButton {
+    func simulateToTap() {
+        allTargets.forEach { target in
+                      actions(forTarget: target, forControlEvent: .touchUpInside)?.forEach {
+                          (target as NSObject).perform(Selector($0))
+                      }
+                  }
+    }
 }
 
 extension UIRefreshControl {
