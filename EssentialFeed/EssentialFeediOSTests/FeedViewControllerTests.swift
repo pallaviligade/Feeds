@@ -165,6 +165,28 @@ final class FeedViewControllerTests: XCTestCase {
         
         
     }
+    func test_feedImageViewRetryButton_isVisibleOnImageURLLoadError() {
+        let image0 = makeFeedImage(imgurl: URL(string: "http://any0-url.com")!)
+        let image1 = makeFeedImage(imgurl: URL(string: "http://any1-url.com")!)
+        let (sut,  loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedloading(with: [image0, image1])
+
+            let view0 = sut.simulateFeedImageViewVisiable(at: 0)
+            let view1 = sut.simulateFeedImageViewVisiable(at: 1)
+            XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action for first view while loading first image")
+            XCTAssertEqual(view1?.isShowingRetryAction, false, "Expected no retry action for second view while loading second image")
+
+            let imageData = UIImage.make(withColor: .red).pngData()!
+            loader.compeletImageLoading(with: imageData, at: 0)
+            XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action for first view once first image loading completes successfully")
+            XCTAssertEqual(view1?.isShowingRetryAction, false, "Expected no retry action state change for second view once first image loading completes successfully")
+
+            loader.completeImageLoadingWithError(at: 1)
+            XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action state change for first view once second image loading completes with error")
+            XCTAssertEqual(view1?.isShowingRetryAction, true, "Expected retry action for second view once second image loading completes with error")
+        }
     
     private func assertThat(_ sut: FeedViewController, isRendering feed: [FeedImage],file: StaticString = #file, line: UInt = #line ) {
         guard sut.numberOfRenderFeedImageView() == feed.count else {
@@ -324,6 +346,10 @@ extension FeedImageCell {
     
     var renderImage: Data? {
         return feedImageView.image?.pngData()
+    }
+    
+    var isShowingRetryAction: Bool? {
+        return !feedImageRetryButton.isHidden
     }
    
 }
