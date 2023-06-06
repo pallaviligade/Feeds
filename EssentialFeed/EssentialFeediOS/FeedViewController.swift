@@ -27,6 +27,7 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
     private var imageLoder: FeedImageDataLoader?
     
     private(set) var tasks = [IndexPath: FeedImageDataLoaderTask]()
+    private(set) var tasks1 = [IndexPath: String]()
     
     public convenience init(feedloader: FeedLoader, imageLoader:  FeedImageDataLoader) {
         self.init()
@@ -72,6 +73,8 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
         let loadImage = { [weak self, weak cell] in
             guard let self = self else { return }
             
+            self.tasks1[indexPath] = "Pallav"
+            print(tasks1)
             self.tasks[indexPath] = self.imageLoder?.loadImageData(from: cellModel.imageURL) { [weak cell] result in
                 let imageData = try? result.get()
                 let image = imageData.map(UIImage.init) ?? nil
@@ -87,7 +90,6 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
     }
     
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let cellModel = tableModel[indexPath.row]
         tasks[indexPath]?.cancel()
         tasks[indexPath] = nil
     }
@@ -95,7 +97,15 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
     public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         indexPaths.forEach { indexPath in
             let cell = tableModel[indexPath.row]
-            let loader = imageLoder?.loadImageData(from: cell.imageURL, completionHandler: { _ in })
+             tasks[indexPath] = imageLoder?.loadImageData(from: cell.imageURL, completionHandler: { _ in })
         }
+    }
+    
+    public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+        indexPaths.forEach { indexPath in
+            tasks[indexPath]?.cancel()
+            tasks[indexPath] = nil
+        }
+        
     }
 }

@@ -241,6 +241,21 @@ final class FeedViewControllerTests: XCTestCase {
        XCTAssertEqual(loader.loadedImageUrls, [image0.imageURL, image1.imageURL], "Expected second image URL request once second image is near visible")
         
     }
+    func test_feedImageView_cancelsImageURLPreloadingWhenNotNearVisibleAnymore() {
+        let image0 = makeFeedImage(imgurl: URL(string: "http://any0-url.com")!)
+        let image1 = makeFeedImage(imgurl: URL(string: "http://any1-url.com")!)
+        let (sut,  loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedloading(with: [image0, image1])
+        XCTAssertEqual(loader.cancelledImageURLs, [], "Expected no cancelled image URL requests until image is not near visible")
+        
+        sut.simulateFeedImageViewNotVisible(at: 0)
+        XCTAssertEqual(loader.cancelledImageURLs, [image0.imageURL], "Expected first cancelled image URL request once first image is not near visible anymore")
+        
+        sut.simulateFeedImageViewNotVisible(at: 1)
+        XCTAssertEqual(loader.cancelledImageURLs, [image0.imageURL, image1.imageURL], "Expected second cancelled image URL request once second image is not near visible anymore")
+    }
     private func assertThat(_ sut: FeedViewController, isRendering feed: [FeedImage],file: StaticString = #file, line: UInt = #line ) {
         guard sut.numberOfRenderFeedImageView() == feed.count else {
             XCTFail("Expected \(feed.count) images, got \(sut.numberOfRenderFeedImageView()) instead.", file: file, line: line)
@@ -383,6 +398,13 @@ private extension FeedViewController {
         let ds = tableView.prefetchDataSource
         let index = IndexPath(row: row, section: feedImageNumberOfSections())
         ds?.tableView(tableView, prefetchRowsAt: [index])
+    }
+    
+    func simulateFeedImageViewNotNearVisiable(at row: Int) {
+        simulateFeedImagViewNearVisiable(at: row)
+        let ds = tableView.prefetchDataSource
+        let index = IndexPath(row: row, section: feedImageNumberOfSections())
+        ds?.tableView?(tableView, cancelPrefetchingForRowsAt: [index])
     }
 }
 
