@@ -13,10 +13,10 @@ import UIKit
 
 public final  class FeedViewController: UITableViewController,UITableViewDataSourcePrefetching
 {
-    
-    
-    private var feedloader: FeedLoader?
-    private var tableModel = [FeedImage]()
+    private var refershViewController: FeedRefershViewController?
+    private var tableModel = [FeedImage]() {
+        didSet { tableView.reloadData() }
+    }
     private var imageLoder: FeedImageDataLoader?
     
     private(set) var tasks = [IndexPath: FeedImageDataLoaderTask]()
@@ -24,29 +24,20 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
     
     public convenience init(feedloader: FeedLoader, imageLoader:  FeedImageDataLoader) {
         self.init()
-        self.feedloader = feedloader
+        self.refershViewController = FeedRefershViewController(feedload: feedloader)
         self.imageLoder = imageLoader
     }
     public override func viewDidLoad() {
         super.viewDidLoad()
-        refreshControl = UIRefreshControl()
+        refreshControl = refershViewController?.view
+        refershViewController?.onClick = { [weak self] feed in
+            self?.tableModel = feed
+        }
         tableView.prefetchDataSource = self
-        refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
-        load()
+        refershViewController?.refresh()
     }
     
-   @objc func load()
-    {
-        refreshControl?.beginRefreshing()
-        feedloader?.load{ [weak self] result in
-           guard let self = self else { return }
-            if let feed  = try? result.get()  {
-                self.tableModel = feed
-                self.tableView.reloadData()
-            }           
-            self.refreshControl?.endRefreshing()
-        }
-    }
+  
     
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tableModel.count
