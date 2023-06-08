@@ -13,19 +13,15 @@ import UIKit
 public final  class FeedViewController: UITableViewController,UITableViewDataSourcePrefetching
 {
     private var refershViewController: FeedRefershViewController?
-    private var tableModel = [FeedImageCellController]() {
+     var tableModel = [FeedImageCellController]() {
         didSet { tableView.reloadData() }
     }
     
     
-    public convenience init(feedloader: FeedLoader, imageLoader:  FeedImageDataLoader) {
+    public convenience init(refershViewController: FeedRefershViewController) {
         self.init()
-        self.refershViewController = FeedRefershViewController(feedload: feedloader)
-        refershViewController?.onClick = { [weak self] feed in
-            self?.tableModel = feed.map { model in
-                FeedImageCellController(model: model, imageLoader: imageLoader)
-            }
-        }
+        self.refershViewController = refershViewController
+        
     }
     public override func viewDidLoad() {
         super.viewDidLoad()
