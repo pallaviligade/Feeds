@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-import EssentialFeed
+import EssentialFeed // MVC Pattern 
 
 public final class FeedImageCellController {
     
