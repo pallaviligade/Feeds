@@ -9,6 +9,8 @@ import Foundation
 import EssentialFeed
 
 final class FeedViewModel {
+    
+    typealias Observer<T> = (T) ->Void
     private  let feedloader:  FeedLoader
     
     init(feedload: FeedLoader) {
@@ -16,8 +18,8 @@ final class FeedViewModel {
     }
     
   
-    var onloadingStateChage: ((Bool) ->Void)? // loading state change
-    var onFeedLoad: (([FeedImage])-> Void)? // Notifiy new version of feeds 
+    var onloadingStateChage: Observer<Bool>? // loading state change
+    var onFeedLoad: Observer<[FeedImage]>? // Notifiy new version of feeds 
     
    
     
