@@ -62,11 +62,8 @@ final class FeedViewModel {
 
 final class FeedRefershViewController: NSObject {
     
-    private(set) lazy var view: UIRefreshControl = {
-        let view = UIRefreshControl()
-        view.addTarget(self, action: #selector(refresh), for: .valueChanged)
-        return view
-    }()
+   private(set) lazy var view: UIRefreshControl = binded(UIRefreshControl())
+  
     
     private  let feedViewModel:  FeedViewModel
     
@@ -78,23 +75,24 @@ final class FeedRefershViewController: NSObject {
     
     @objc func refresh()
     {
-        feedViewModel.onChange =   { [weak self] viewModel in
-            guard let self = self else { return }
-            if viewModel.isLoading {
-                view.beginRefreshing()
-            }else {
-                view.endRefreshing()
-            }
-            if let feed = viewModel.feed {
-                self.onRefresh?(feed)
-            }
-        }
-         // This binding logic between view model and view
         feedViewModel.loadFeed()
         
     }
     
-   private func bind(_ view: UIRefreshControl) {
-       
+   private func binded(_ view: UIRefreshControl) -> UIRefreshControl {
+       feedViewModel.onChange =   { [weak self] viewModel in
+           guard let self = self else { return }
+           if viewModel.isLoading {
+               view.beginRefreshing()
+           }else {
+               view.endRefreshing()
+           }
+           if let feed = viewModel.feed {
+               self.onRefresh?(feed)
+           }
+       }
+       view.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        // This binding logic between view model and view
+       return view
     }
 }

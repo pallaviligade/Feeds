@@ -17,7 +17,7 @@ public final class FeedUIComposer {
         
         let feedViewController = FeedViewController(refershViewController: refershViewController)
         
-        refershViewController.onClick = addapatFeedToCellController(forwordingTo: feedViewController, loader: imageLoader)
+        refershViewController.onRefresh = addapatFeedToCellController(forwordingTo: feedViewController, loader: imageLoader)
         return feedViewController
     }
     

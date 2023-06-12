@@ -20,7 +20,7 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
     }
     
     
-    public convenience init(refershViewController: FeedRefershViewController) {
+     convenience init(refershViewController: FeedRefershViewController) {
         self.init()
         self.refershViewController = refershViewController
         
