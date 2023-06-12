@@ -12,12 +12,12 @@ public final class FeedUIComposer {
     
     private init() {}
     public  static func createFeedView(feedloader: FeedLoader, imageLoader:  FeedImageDataLoader) -> FeedViewController {
-        
-        let refershViewController = FeedRefershViewController(feedload: feedloader)
+        let feedViewModel = FeedViewModel(feedload: feedloader)
+        let refershViewController = FeedRefershViewController(feedViewModel: feedViewModel)
         
         let feedViewController = FeedViewController(refershViewController: refershViewController)
         
-        refershViewController.onRefresh = addapatFeedToCellController(forwordingTo: feedViewController, loader: imageLoader)
+        feedViewModel.onFeedLoad = addapatFeedToCellController(forwordingTo: feedViewController, loader: imageLoader)
         return feedViewController
     }
     
