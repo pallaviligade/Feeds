@@ -16,24 +16,22 @@ final class FeedViewModel {
     }
     
   
-    var onChange: ((FeedViewModel) ->Void)?
-    var onFeedLoad: (([FeedImage])-> Void)?
+    var onloadingStateChage: ((Bool) ->Void)? // loading state change
+    var onFeedLoad: (([FeedImage])-> Void)? // Notifiy new version of feeds 
     
-    var isLoading: Bool = false {
-        didSet { onChange?(self) } // When it change send on change notification to view
-    }
+   
     
    
     func loadFeed()
     {
-       isLoading = true
+        onloadingStateChage?(true)
         feedloader.load{ [weak self] result in
             guard let self = self else { return }
             
             if let feed  = try? result.get()  {
                 self.onFeedLoad?(feed)
             }
-            isLoading = false
+            onloadingStateChage?(false)
         }
     }
     

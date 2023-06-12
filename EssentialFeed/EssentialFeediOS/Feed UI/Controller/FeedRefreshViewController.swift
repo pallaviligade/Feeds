@@ -31,12 +31,12 @@ final class FeedRefershViewController: NSObject {
     }
     
    private func binded(_ view: UIRefreshControl) -> UIRefreshControl {
-       feedViewModel.onChange =   {  viewModel in
+       feedViewModel.onloadingStateChage =   { [weak view]  isLoading in
 
-           if viewModel.isLoading {
-               view.beginRefreshing()
+           if isLoading {
+               view?.beginRefreshing()
            }else {
-               view.endRefreshing()
+               view?.endRefreshing()
            }
          
        }
