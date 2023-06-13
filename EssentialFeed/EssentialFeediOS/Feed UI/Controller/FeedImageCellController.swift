@@ -14,9 +14,9 @@ import EssentialFeed
 
 public final class FeedImageCellController {
     
-    private let viewModel: FeedImageCellViewModel
+    private let viewModel: FeedImageCellViewModel<UIImage>
   
-    init(ViewModel: FeedImageCellViewModel) {
+    init(ViewModel: FeedImageCellViewModel<UIImage>) {
         viewModel = ViewModel
     }
     
