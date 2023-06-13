@@ -11,6 +11,7 @@ import EssentialFeed
 public final class FeedUIComposer {
     
     private init() {}
+    
     public  static func createFeedView(feedloader: FeedLoader, imageLoader:  FeedImageDataLoader) -> FeedViewController {
         let feedViewModel = FeedViewModel(feedload: feedloader)
         let refershViewController = FeedRefershViewController(feedViewModel: feedViewModel)
@@ -24,7 +25,7 @@ public final class FeedUIComposer {
     private static func addapatFeedToCellController(forwordingTo controller: FeedViewController, loader: FeedImageDataLoader) -> ([FeedImage]) -> Void  {
         return { [weak controller] feed in
             controller?.tableModel = feed.map { model in
-                FeedImageCellController(model: model, imageLoader: loader)
+                FeedImageCellController(ViewModel: FeedImageCellViewModel(model:model , imageLoader: loader) )
             }
         }
     }
