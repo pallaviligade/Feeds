@@ -16,7 +16,10 @@ public final class FeedUIComposer {
         let feedViewModel = FeedViewModel(feedload: feedloader)
         let refershViewController = FeedRefershViewController(feedViewModel: feedViewModel)
         
-        let feedViewController = FeedViewController(refershViewController: refershViewController)
+        let storyBorad = UIStoryboard(name: "Feed", bundle: Bundle(for: FeedViewController.self))
+    
+        let feedViewController = storyBorad.instantiateInitialViewController() as! FeedViewController
+        feedViewController.refershViewController = refershViewController
         
         feedViewModel.onFeedLoad = addapatFeedToCellController(forwordingTo: feedViewController, loader: imageLoader)
         return feedViewController
