@@ -13,10 +13,10 @@ public final class FeedUIComposer {
     private init() {}
     
     public  static func createFeedView(feedloader: FeedLoader, imageLoader:  FeedImageDataLoader) -> FeedViewController {
-        let presenter = FeedPresenter(feedload: feedloader)
-        let refershViewController = FeedRefershViewController(presenter: presenter)
+        let presenter = FeedPresenter()
+        let presenterAdapter = feedLoaderPresentionAdapter(presenter: presenter, loader: feedloader)
+        let refershViewController = FeedRefershViewController(loadFeed: presenterAdapter.loadFeed)
         
-        let storyBorad = UIStoryboard(name: "Feed", bundle: Bundle(for: FeedViewController.self))
     
         let feedViewController = storyBorad.instantiateInitialViewController() as! FeedViewController
         presenter.loadingView = weakRefVirtulaProxy(refershViewController)
@@ -68,4 +68,35 @@ private final class  FeedViewAdapter: feedView {
         }
     }
 
+}
+
+
+private final class feedLoaderPresentionAdapter  {
+    
+    private let presenter: FeedPresenter
+    private let loader:  FeedLoader
+    
+    init(presenter: FeedPresenter, loader: FeedLoader) {
+        self.presenter = presenter
+        self.loader = loader
+    }
+    
+    func loadFeed() {
+        presenter.didStartLoadingFeed()
+        
+        loader.load { [weak self] result in
+            switch result {
+            case let .success(feed):
+                self?.presenter.didFinishLoadingFeed(feed)
+                break
+            case let .failure(error):
+                self?.presenter.didFinishLoadingFeed(error)
+                break
+            }
+          
+        }
+        
+        
+    }
+    
 }
