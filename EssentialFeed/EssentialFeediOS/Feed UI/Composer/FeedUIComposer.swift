@@ -13,14 +13,15 @@ public final class FeedUIComposer {
     private init() {}
     
     public  static func createFeedView(feedloader: FeedLoader, imageLoader:  FeedImageDataLoader) -> FeedViewController {
-        let presenter = FeedPresenter()
-        let presenterAdapter = feedLoaderPresentionAdapter(presenter: presenter, loader: feedloader)
-        let refershViewController = FeedRefershViewController(loadFeed: presenterAdapter.loadFeed)
+        let presenterAdapter = feedLoaderPresentionAdapter(loader: feedloader)
+        let refershViewController = FeedRefershViewController(delegate: presenterAdapter)
         
-    
-        let feedViewController = storyBorad.instantiateInitialViewController() as! FeedViewController
-        presenter.loadingView = weakRefVirtulaProxy(refershViewController)
-        presenter.feedView = FeedViewAdapter(controller: feedViewController, loader: imageLoader)
+//        let storyBorad = UIStoryboard(name: "Feed", bundle: Bundle(for: FeedViewController.self))
+//        let feedViewController = storyBorad.instantiateInitialViewController() as! FeedViewController
+        let feedViewController = FeedViewController(refershViewController: refershViewController)
+        presenterAdapter.presenter = FeedPresenter(loadingView:  weakRefVirtulaProxy(refershViewController),
+                                                   feedView: FeedViewAdapter(controller: feedViewController, loader: imageLoader))
+      
       
         return feedViewController
     }
@@ -71,31 +72,31 @@ private final class  FeedViewAdapter: feedView {
 }
 
 
-private final class feedLoaderPresentionAdapter  {
+private final class feedLoaderPresentionAdapter: FeedRefershViewControllerDelegate  {
+   
     
-    private let presenter: FeedPresenter
+    
+   var presenter: FeedPresenter?
     private let loader:  FeedLoader
     
-    init(presenter: FeedPresenter, loader: FeedLoader) {
-        self.presenter = presenter
+    init( loader: FeedLoader) {
         self.loader = loader
     }
     
-    func loadFeed() {
-        presenter.didStartLoadingFeed()
+    func didRefershFeedRequest() {
+        presenter?.didStartLoadingFeed()
         
         loader.load { [weak self] result in
             switch result {
             case let .success(feed):
-                self?.presenter.didFinishLoadingFeed(feed)
+                self?.presenter?.didFinishLoadingFeed(feed)
                 break
             case let .failure(error):
-                self?.presenter.didFinishLoadingFeed(error)
+                self?.presenter?.didFinishLoadingFeed(error)
                 break
             }
           
         }
-        
         
     }
     

@@ -9,7 +9,9 @@ import Foundation
 import UIKit
 
 
-
+protocol FeedRefershViewControllerDelegate {
+    func didRefershFeedRequest()
+}
 
 final class FeedRefershViewController: NSObject, FeedloadingView {
     
@@ -17,17 +19,17 @@ final class FeedRefershViewController: NSObject, FeedloadingView {
    private(set) lazy var view = loadView()
   
     
-    private  let loadFeed:  () -> Void
+    private  let delegate:  FeedRefershViewControllerDelegate
     
-    init(loadFeed:@escaping () -> Void) {
-        self.loadFeed = loadFeed
+    init(delegate:FeedRefershViewControllerDelegate) {
+        self.delegate =  delegate
     }
     
  
     
     @objc func refresh()
     {
-       loadFeed()
+        delegate.didRefershFeedRequest()
         
     }
    

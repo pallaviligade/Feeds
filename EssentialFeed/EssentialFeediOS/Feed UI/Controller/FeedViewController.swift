@@ -18,7 +18,10 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
         didSet { tableView.reloadData() }
     }
     
-    
+   convenience init(refershViewController: FeedRefershViewController) {
+        self.init()
+        self.refershViewController = refershViewController
+    }
     
     public override func viewDidLoad() {
         super.viewDidLoad()
