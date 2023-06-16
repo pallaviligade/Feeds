@@ -13,7 +13,6 @@ public final class FeedUIComposer {
     private init() {}
     
     public  static func createFeedView(feedloader: FeedLoader, imageLoader:  FeedImageDataLoader) -> FeedViewController {
-        let feedViewModel = FeedViewModel(feedload: feedloader)
         let presenter = FeedPresenter(feedload: feedloader)
         let refershViewController = FeedRefershViewController(presenter: presenter)
         
@@ -22,10 +21,7 @@ public final class FeedUIComposer {
         let feedViewController = storyBorad.instantiateInitialViewController() as! FeedViewController
         presenter.loadingView = weakRefVirtulaProxy(refershViewController)
         presenter.feedView = FeedViewAdapter(controller: feedViewController, loader: imageLoader)
-        feedViewController.refershViewController = refershViewController
-        
-        
-        feedViewModel.onFeedLoad = addapatFeedToCellController(forwordingTo: feedViewController, loader: imageLoader)
+      
         return feedViewController
     }
     
@@ -47,14 +43,15 @@ private final class weakRefVirtulaProxy<T: AnyObject> {
 }
 
 extension weakRefVirtulaProxy: FeedloadingView  where T: FeedloadingView {
-    func display(isloading: Bool) {
-        object?.display(isloading: isloading)
+    func display(_ viewModel: FeedloadingViewModel) {
+        object?.display(viewModel)
     }
     
     
 }
 
 private final class  FeedViewAdapter: feedView {
+   
    
     private weak var controller : FeedViewController?
     private let loader: FeedImageDataLoader
@@ -65,8 +62,8 @@ private final class  FeedViewAdapter: feedView {
     }
     
     
-    func displayFeed(feedImages: [EssentialFeed.FeedImage]) {
-        controller?.tableModel = feedImages.map { model in
+    func displayFeed(_ viewModel: feedViewModel) {
+        controller?.tableModel = viewModel.feed.map { model in
             FeedImageCellController(ViewModel: FeedImageCellViewModel(model:model , imageLoader: loader, imageTransfer: UIImage.init) )
         }
     }

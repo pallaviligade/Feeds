@@ -13,6 +13,7 @@ import UIKit
 
 final class FeedRefershViewController: NSObject, FeedloadingView {
     
+    
    private(set) lazy var view = loadView()
   
     
@@ -29,9 +30,10 @@ final class FeedRefershViewController: NSObject, FeedloadingView {
         presenter.loadFeed()
         
     }
+   
     
-    func display(isloading: Bool) {
-        if isloading {
+    func display(_ viewModel: FeedloadingViewModel) {
+        if viewModel.isloading {
             view.beginRefreshing()
         }else {
             view.endRefreshing()
