@@ -9,10 +9,52 @@ import Foundation
 import UIKit
 import EssentialFeed
 
+protocol FeedImageCellControllerDelegate {
+    func didRequestImage()
+    func didCancelImageRequest()
+}
+
+public final class FeedImageCellController: FeedImageView {
+    func display(_ model: FeedImageViewModel<UIImage>) {
+        cell.locationContainer.isHidden = !model.hasLocation
+                cell.locationLabel.text = model.location
+                cell.discrptionLabel.text = model.description
+                cell.feedImageView.image = model.image
+                cell.feedImageContainer.isShimmering = model.isLoading
+                cell.feedImageRetryButton.isHidden = !model.shouldRetry
+                cell.onRetry = delegate.didRequestImage
+    }
+    
+    typealias Image = UIImage
+    
+    
+    
+    
+    private let delegate: FeedImageCellControllerDelegate
+    private lazy var cell = FeedImageCell()
+  
+    init(delegate: FeedImageCellControllerDelegate) {
+        self.delegate = delegate
+    }
+    
+    public  func view() -> UITableViewCell {
+        delegate.didRequestImage()
+        return cell
+    }
+   
+    public func preload() {
+        delegate.didRequestImage()
+    }
+    
+    public func cancelLoad() {
+        delegate.didCancelImageRequest()
+    }
+    
+   
+}
 
 
-
-public final class FeedImageCellController {
+/*public final class FeedImageCellController {
     
     private let viewModel: FeedImageCellViewModel<UIImage>
   
@@ -55,3 +97,4 @@ public final class FeedImageCellController {
         return cell
     }
 }
+*/
