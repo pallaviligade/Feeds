@@ -8,12 +8,14 @@
 import Foundation
 import UIKit
 
+protocol FeedViewControllerDelegate {
+    func didRefershFeedRequest()
+}
 
 
-
-public final  class FeedViewController: UITableViewController,UITableViewDataSourcePrefetching
+public final  class FeedViewController: UITableViewController,UITableViewDataSourcePrefetching, FeedloadingView
 {
-    @IBOutlet var refershViewController: FeedRefershViewController?
+     var delegate: FeedViewControllerDelegate?
      var tableModel = [FeedImageCellController]() {
         didSet { tableView.reloadData() }
     }
@@ -23,10 +25,21 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
         super.viewDidLoad()
        
         tableView.prefetchDataSource = self
-        refershViewController?.refresh()
+        refresh()
     }
     
-  
+    @IBAction func refresh()
+    {
+        delegate?.didRefershFeedRequest()
+        
+    }
+    func display(_ viewModel: FeedloadingViewModel) {
+        if viewModel.isloading {
+            refreshControl?.beginRefreshing()
+        }else {
+            refreshControl?.endRefreshing()
+        }
+    }
     
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tableModel.count
