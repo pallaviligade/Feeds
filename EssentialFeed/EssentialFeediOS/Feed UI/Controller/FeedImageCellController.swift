@@ -15,29 +15,19 @@ protocol FeedImageCellControllerDelegate {
 }
 
 public final class FeedImageCellController: FeedImageView {
-    func display(_ model: FeedImageViewModel<UIImage>) {
-        cell.locationContainer.isHidden = !model.hasLocation
-                cell.locationLabel.text = model.location
-                cell.discrptionLabel.text = model.description
-                cell.feedImageView.image = model.image
-                cell.feedImageContainer.isShimmering = model.isLoading
-                cell.feedImageRetryButton.isHidden = !model.shouldRetry
-                cell.onRetry = delegate.didRequestImage
-    }
+    
     
     typealias Image = UIImage
-    
-    
-    
-    
+   
     private let delegate: FeedImageCellControllerDelegate
-    private lazy var cell = FeedImageCell()
+    private var cell: FeedImageCell?
   
     init(delegate: FeedImageCellControllerDelegate) {
         self.delegate = delegate
     }
     
-    public  func view() -> UITableViewCell {
+    public  func view(at tableView: UITableView) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FeedImageCell") as! FeedImageCell
         delegate.didRequestImage()
         return cell
     }
@@ -47,10 +37,30 @@ public final class FeedImageCellController: FeedImageView {
     }
     
     public func cancelLoad() {
+        releaseCellForReuse()
         delegate.didCancelImageRequest()
     }
     
+    func display(_ model: FeedImageViewModel<UIImage>) {
+        cell?.locationContainer.isHidden = !model.hasLocation
+                cell?.locationLabel.text = model.location
+                cell?.discrptionLabel.text = model.description
+                cell?.feedImageView.image = model.image
+                cell?.feedImageContainer.isShimmering = model.isLoading
+                cell?.feedImageRetryButton.isHidden = !model.shouldRetry
+                cell?.onRetry = delegate.didRequestImage
+    }
+    private func releaseCellForReuse() {
+        cell = nil
+    }
    
+}
+
+extension UITableView {
+    func dequeReuableCell<T: UITableViewCell>() -> T {
+        let identifier = String(describing: T.self)
+        return dequeueReusableCell(withIdentifier: identifier) as! T
+    }
 }
 
 
