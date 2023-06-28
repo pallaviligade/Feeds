@@ -297,6 +297,20 @@ final class FeedViewControllerTests: XCTestCase {
         return feedImage
         
     }
+    func test_feedImageView_doesNotRenderLoadedImageWhenNotVisibleAnymore() {
+            let (sut, loader) = makeSUT()
+            sut.loadViewIfNeeded()
+        loader.completeFeedloading(with: [makeFeedImage()])
+
+            let view = sut.simulateFeedImageViewNotVisible(at: 0)
+            loader.compeletImageLoading(with: anyImageData())
+
+            XCTAssertNil(view?.renderImage, "Expected no rendered image when an image load finishes after the view is not visible anymore")
+        }
+    
+    private func anyImageData() -> Data {
+            return UIImage.make(withColor: .red).pngData()!
+        }
    
     //MARK: - Helpers
     class FeedViewSpy: FeedLoader, FeedImageDataLoader{
@@ -351,6 +365,7 @@ final class FeedViewControllerTests: XCTestCase {
                 self?.cancelledImageURLs.append(url)
             }
         }
+        
     }
 }
 
@@ -385,12 +400,13 @@ private extension FeedViewController {
         let index = IndexPath(row: row, section: feedImageNumberOfSections())
         return ds?.tableView(tableView, cellForRowAt: index)
     }
-    
-    func simulateFeedImageViewNotVisible(at row:Int)  {
+    @discardableResult
+    func simulateFeedImageViewNotVisible(at row:Int) -> FeedImageCell? {
         let view = simulateFeedImageViewVisiable(at: row)
         let delegate = tableView.delegate
         let index = IndexPath(row: row, section: feedImageNumberOfSections())
         delegate?.tableView?(tableView, didEndDisplaying: view!, forRowAt: index)
+        return view
         
     }
     

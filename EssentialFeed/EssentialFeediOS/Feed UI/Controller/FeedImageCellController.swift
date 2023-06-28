@@ -46,7 +46,7 @@ public final class FeedImageCellController: FeedImageView {
         cell?.locationContainer.isHidden = !model.hasLocation
                 cell?.locationLabel.text = model.location
                 cell?.discrptionLabel.text = model.description
-                cell?.feedImageView.image = model.image
+        cell?.feedImageView.setAnimatedImage(model.image)
                 cell?.feedImageContainer.isShimmering = model.isLoading
                 cell?.feedImageRetryButton.isHidden = !model.shouldRetry
                 cell?.onRetry = delegate.didRequestImage
@@ -57,12 +57,9 @@ public final class FeedImageCellController: FeedImageView {
    
 }
 
-extension UITableView {
-    func dequeReuableCell<T: UITableViewCell>() -> T {
-        let identifier = String(describing: T.self)
-        return dequeueReusableCell(withIdentifier: identifier) as! T
-    }
-}
+
+
+
 
 
 /*public final class FeedImageCellController {
