@@ -13,26 +13,20 @@ public final class FeedUIComposer {
     private init() {}
     
     public  static func createFeedView(feedloader: FeedLoader, imageLoader:  FeedImageDataLoader) -> FeedViewController {
-        let presenterAdapter = feedLoaderPresentionAdapter(loader: feedloader)
-        let refershViewController = FeedRefershViewController(delegate: presenterAdapter)
+        let presentionAdapter = feedLoaderPresentionAdapter(loader: feedloader)
+        let bundle = Bundle(for: FeedViewController.self)
+        let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
+        let feedViewController = storyboard.instantiateInitialViewController() as! FeedViewController
+        let refershViewController = feedViewController.refershViewController!
+        refershViewController.delegate = presentionAdapter
         
-        let storyBorad = UIStoryboard(name: "Feed", bundle: Bundle(for: FeedViewController.self))
-        let feedViewController = storyBorad.instantiateInitialViewController() as! FeedViewController
-        feedViewController.refershViewController = refershViewController
-        presenterAdapter.presenter = FeedPresenter(
+        presentionAdapter.presenter = FeedPresenter(
             loadingView: WeakRefVirtualProxy(refershViewController), feedView: FeedViewAdapter(controller: feedViewController, loader: imageLoader))
       
       
         return feedViewController
     }
     
-//    private static func addapatFeedToCellController(forwordingTo controller: FeedViewController, loader: FeedImageDataLoader) -> ([FeedImage]) -> Void  {
-//        return { [weak controller] feed in
-//            controller?.tableModel = feed.map { model in
-//                FeedImageCellController(ViewModel: FeedImageCellViewModel(model:model , imageLoader: loader, imageTransfer: UIImage.init) )
-//            }
-//        }
-//    }
     
 }
 private final class WeakRefVirtualProxy <T: AnyObject> {

@@ -13,7 +13,7 @@ import UIKit
 
 public final  class FeedViewController: UITableViewController,UITableViewDataSourcePrefetching
 {
-     var refershViewController: FeedRefershViewController?
+    @IBOutlet var refershViewController: FeedRefershViewController?
      var tableModel = [FeedImageCellController]() {
         didSet { tableView.reloadData() }
     }
@@ -21,7 +21,6 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
   
     public override func viewDidLoad() {
         super.viewDidLoad()
-        refreshControl = refershViewController?.view
        
         tableView.prefetchDataSource = self
         refershViewController?.refresh()

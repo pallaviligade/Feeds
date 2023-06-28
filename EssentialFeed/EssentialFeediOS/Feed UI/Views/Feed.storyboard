@@ -135,6 +135,9 @@ Location, </string>
                             <action selector="refresh" destination="E0b-BX-3QJ" eventType="valueChanged" id="8XW-H2-MdT"/>
                         </connections>
                     </refreshControl>
+                    <connections>
+                        <outlet property="refershViewController" destination="E0b-BX-3QJ" id="OZT-8H-8hL"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Wv0-yC-PfV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <customObject id="E0b-BX-3QJ" customClass="FeedRefershViewController" customModule="EssentialFeediOS" customModuleProvider="target">

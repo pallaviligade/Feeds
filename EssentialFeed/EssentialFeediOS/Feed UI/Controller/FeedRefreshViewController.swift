@@ -16,20 +16,15 @@ protocol FeedRefershViewControllerDelegate {
 final class FeedRefershViewController: NSObject, FeedloadingView {
     
     
-    @IBOutlet var view: UIRefreshControl?
+    @IBOutlet private var view: UIRefreshControl?
   
     
-    private  let delegate:  FeedRefershViewControllerDelegate
-    
-    init(delegate:FeedRefershViewControllerDelegate) {
-        self.delegate =  delegate
-    }
-    
- 
+    var delegate:  FeedRefershViewControllerDelegate?
+
     
     @IBAction func refresh()
     {
-        delegate.didRefershFeedRequest()
+        delegate?.didRefershFeedRequest()
         
     }
    
