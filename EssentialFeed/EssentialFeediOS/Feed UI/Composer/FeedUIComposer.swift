@@ -16,9 +16,9 @@ public final class FeedUIComposer {
         let presenterAdapter = feedLoaderPresentionAdapter(loader: feedloader)
         let refershViewController = FeedRefershViewController(delegate: presenterAdapter)
         
-//        let storyBorad = UIStoryboard(name: "Feed", bundle: Bundle(for: FeedViewController.self))
-//        let feedViewController = storyBorad.instantiateInitialViewController() as! FeedViewController
-        let feedViewController = FeedViewController(refershViewController: refershViewController)
+        let storyBorad = UIStoryboard(name: "Feed", bundle: Bundle(for: FeedViewController.self))
+        let feedViewController = storyBorad.instantiateInitialViewController() as! FeedViewController
+        feedViewController.refershViewController = refershViewController
         presenterAdapter.presenter = FeedPresenter(
             loadingView: WeakRefVirtualProxy(refershViewController), feedView: FeedViewAdapter(controller: feedViewController, loader: imageLoader))
       

@@ -16,7 +16,7 @@ protocol FeedRefershViewControllerDelegate {
 final class FeedRefershViewController: NSObject, FeedloadingView {
     
     
-   private(set) lazy var view = loadView()
+    @IBOutlet var view: UIRefreshControl?
   
     
     private  let delegate:  FeedRefershViewControllerDelegate
@@ -27,7 +27,7 @@ final class FeedRefershViewController: NSObject, FeedloadingView {
     
  
     
-    @objc func refresh()
+    @IBAction func refresh()
     {
         delegate.didRefershFeedRequest()
         
@@ -36,15 +36,11 @@ final class FeedRefershViewController: NSObject, FeedloadingView {
     
     func display(_ viewModel: FeedloadingViewModel) {
         if viewModel.isloading {
-            view.beginRefreshing()
+            view?.beginRefreshing()
         }else {
-            view.endRefreshing()
+            view?.endRefreshing()
         }
     }
     
-   private func loadView() -> UIRefreshControl {
-       let view = UIRefreshControl()
-       view.addTarget(self, action: #selector(refresh), for: .valueChanged)
-       return view
-    }
+  
 }
