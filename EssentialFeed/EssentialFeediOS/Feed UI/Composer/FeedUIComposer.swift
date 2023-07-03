@@ -114,7 +114,7 @@ private final class feedLoaderPresentionAdapter: FeedViewControllerDelegate  {
                 self?.presenter?.didFinishLoadingFeed(feed)
                 break
             case let .failure(error):
-                self?.presenter?.didFinishLoadingFeed(error)
+                self?.presenter?.didFinishLoadingFeed(with: error)
                 break
             }
           
