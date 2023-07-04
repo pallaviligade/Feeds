@@ -332,6 +332,22 @@ final class FeedViewControllerTests: XCTestCase {
             
     }
     
+    func test_loadFeedImagesCompletion_dispatchFromBackgroundToMainThread() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        
+        loader.completeFeedloading(with: [makeFeedImage()])
+        _ = sut.simulateFeedImageViewVisiable(at: 0)
+        
+        let exp =  expectation(description: "Wait for background queue")
+        
+        DispatchQueue.global().async {
+            loader.compeletImageLoading(with: self.anyImageData(),at: 0)
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.0)
+        
+    }
     private func anyImageData() -> Data {
             return UIImage.make(withColor: .red).pngData()!
         }
