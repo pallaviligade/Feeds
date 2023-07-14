@@ -7,13 +7,14 @@
 
 import Foundation
 import UIKit
+import EssentialFeed
 
 protocol FeedViewControllerDelegate {
     func didRefershFeedRequest()
 }
 
 
-public final  class FeedViewController: UITableViewController,UITableViewDataSourcePrefetching, FeedloadingView
+public final  class FeedViewController: UITableViewController,UITableViewDataSourcePrefetching, FeedLoadingView
 {
      var delegate: FeedViewControllerDelegate?
      var tableModel = [FeedImageCellController]() {
@@ -32,8 +33,8 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
         delegate?.didRefershFeedRequest()
         
     }
-    func display(_ viewModel: FeedloadingViewModel) {
-        if viewModel.isloading {
+    public func display(_ viewModel: FeedLoadingViewModel) {
+        if viewModel.isLoading {
             refreshControl?.beginRefreshing()
         }else {
             refreshControl?.endRefreshing()
