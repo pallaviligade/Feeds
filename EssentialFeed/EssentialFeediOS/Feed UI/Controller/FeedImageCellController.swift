@@ -5,7 +5,6 @@
 //  Created by Pallavi on 07.06.23.
 //
 
-import Foundation
 import UIKit
 import EssentialFeed
 
@@ -17,7 +16,7 @@ protocol FeedImageCellControllerDelegate {
 public final class FeedImageCellController: FeedImageView {
     
     
-    typealias Image = UIImage
+    public typealias Image = UIImage
    
     private let delegate: FeedImageCellControllerDelegate
     private var cell: FeedImageCell?
@@ -42,7 +41,7 @@ public final class FeedImageCellController: FeedImageView {
         delegate.didCancelImageRequest()
     }
     
-    func display(_ model: FeedImageViewModel<UIImage>) {
+    public func display(_ model: FeedImageViewModel<UIImage>) {
         cell?.locationContainer.isHidden = !model.hasLocation
                 cell?.locationLabel.text = model.location
                 cell?.discrptionLabel.text = model.description
