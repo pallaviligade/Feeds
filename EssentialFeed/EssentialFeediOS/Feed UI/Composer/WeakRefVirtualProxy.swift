@@ -5,7 +5,6 @@
 //  Created by Pallavi on 04.07.23.
 //
 
-import Foundation
 import EssentialFeed
 import UIKit
 
@@ -17,8 +16,15 @@ final class WeakRefVirtualProxy <T: AnyObject> {
     }
 }
 
-extension WeakRefVirtualProxy: FeedloadingView  where T: FeedloadingView {
-    func display(_ viewModel: FeedloadingViewModel) {
+extension WeakRefVirtualProxy: FeedErrorView where T: FeedErrorView {
+    func display(_ viewModel: FeedErrorViewModel) {
+        object?.display(viewModel)
+    }
+    
+}
+
+extension WeakRefVirtualProxy: FeedLoadingView  where T: FeedLoadingView {
+    func display(_ viewModel: FeedLoadingViewModel) {
         object?.display(viewModel)
     }
     

@@ -17,9 +17,12 @@ public final class FeedUIComposer {
         
         let feedViewController = makeFeedViewController(delegate: presentionAdapter, title: FeedPresenter
             .title)
-        presentionAdapter.presenter = FeedPresenter(
-            loadingView: WeakRefVirtualProxy(feedViewController),
-            feedView: FeedViewAdapter(controller: feedViewController, loader: MainQueueDispatchDecorater(decoratee: imageLoader)))
+//        presentionAdapter.presenter = FeedPresenter(
+//            feedview: WeakRefVirtualProxy(feedViewController),
+//            errorView: FeedViewAdapter(controller: feedViewController, loader: MainQueueDispatchDecorater(decoratee: imageLoader)))
+        
+        presentionAdapter.presenter = FeedPresenter(feedview: FeedViewAdapter(controller: feedViewController, loader: MainQueueDispatchDecorater(decoratee: imageLoader)),
+                                                    errorView: WeakRefVirtualProxy(feedViewController), loadingview: WeakRefVirtualProxy(feedViewController))
       
       
         return feedViewController

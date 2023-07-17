@@ -5,7 +5,6 @@
 //  Created by Pallavi on 16.05.23.
 //
 
-import Foundation
 import UIKit
 import EssentialFeed
 
@@ -14,9 +13,10 @@ protocol FeedViewControllerDelegate {
 }
 
 
-public final  class FeedViewController: UITableViewController,UITableViewDataSourcePrefetching, FeedLoadingView
+public final  class FeedViewController: UITableViewController,UITableViewDataSourcePrefetching, FeedLoadingView, FeedErrorView
 {
      var delegate: FeedViewControllerDelegate?
+    @IBOutlet private(set) public var errorView: ErrorView?
      var tableModel = [FeedImageCellController]() {
         didSet { tableView.reloadData() }
     }
@@ -33,11 +33,20 @@ public final  class FeedViewController: UITableViewController,UITableViewDataSou
         delegate?.didRefershFeedRequest()
         
     }
+    
     public func display(_ viewModel: FeedLoadingViewModel) {
         if viewModel.isLoading {
             refreshControl?.beginRefreshing()
         }else {
             refreshControl?.endRefreshing()
+        }
+    }
+    
+    public func display(_ viewModel: FeedErrorViewModel) {
+        if let message = viewModel.message {
+            errorView?.show(message: message)
+        } else {
+            errorView?.hideMessage()
         }
     }
     

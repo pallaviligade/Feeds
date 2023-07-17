@@ -16,19 +16,35 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <view key="tableHeaderView" contentMode="scaleToFill" id="Eu9-zf-QHs">
-                            <rect key="frame" x="0.0" y="0.0" width="393" height="16"/>
+                        <view key="tableHeaderView" contentMode="scaleToFill" id="Eu9-zf-QHs" customClass="ErrorView" customModule="EssentialFeediOS" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="0.0" width="393" height="34"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ESa-Cl-0a7">
+                                    <rect key="frame" x="0.0" y="0.0" width="393" height="34"/>
+                                    <state key="normal" title="Button"/>
+                                    <buttonConfiguration key="configuration" style="plain" title="Button"/>
+                                </button>
+                            </subviews>
                             <color key="backgroundColor" systemColor="systemOrangeColor"/>
+                            <constraints>
+                                <constraint firstAttribute="trailing" secondItem="ESa-Cl-0a7" secondAttribute="trailing" id="DSw-wS-0li"/>
+                                <constraint firstItem="ESa-Cl-0a7" firstAttribute="leading" secondItem="Eu9-zf-QHs" secondAttribute="leading" id="knP-dg-ALQ"/>
+                                <constraint firstItem="ESa-Cl-0a7" firstAttribute="top" secondItem="Eu9-zf-QHs" secondAttribute="top" id="lOM-QQ-gEC"/>
+                                <constraint firstAttribute="bottom" secondItem="ESa-Cl-0a7" secondAttribute="bottom" id="yAd-c8-RhC"/>
+                            </constraints>
+                            <connections>
+                                <outlet property="button" destination="ESa-Cl-0a7" id="jgv-ci-EkB"/>
+                            </connections>
                         </view>
                         <view key="tableFooterView" contentMode="scaleToFill" id="hvQ-A8-ert">
-                            <rect key="frame" x="0.0" y="674" width="393" height="16"/>
+                            <rect key="frame" x="0.0" y="692" width="393" height="16"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="backgroundColor" systemColor="systemBlueColor"/>
                         </view>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="FeedImageCell" rowHeight="580" id="e94-Z3-eKf" customClass="FeedImageCell" customModule="EssentialFeediOS" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="66" width="393" height="580"/>
+                                <rect key="frame" x="0.0" y="84" width="393" height="580"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="e94-Z3-eKf" id="h0H-ep-ZMz">
                                     <rect key="frame" x="0.0" y="0.0" width="393" height="580"/>
@@ -150,7 +166,7 @@ Location, </string>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Wv0-yC-PfV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1016" y="77"/>
+            <point key="canvasLocation" x="1014.5038167938931" y="76.760563380281695"/>
         </scene>
     </scenes>
     <resources>
