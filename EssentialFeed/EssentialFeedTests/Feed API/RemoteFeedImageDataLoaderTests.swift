@@ -74,10 +74,19 @@ final class RemoteFeedImageDataLoaderTests: XCTestCase {
         
         sample.enumerated().forEach { index, code in
             expect(sut, tocompleteWith: failure(.invaildData)) {
-                client.complete(with: code, data: anyData(), at: index)
+                client.complete(withstatusCode: code, data: anyData(), at: index)
             }
         }
         
+    }
+    
+    func test_loadImageDataFromURL_deliversInvalidDataErrorOn200HTTPResponseWithEmptyData() {
+        let (client, sut) = makeSUT()
+       
+        expect(sut, tocompleteWith: failure(.invaildData)) {
+            let emptyData = anyData()
+            client.complete(withstatusCode: 200, data: emptyData)
+        }
     }
     //MARK: - Helpers
     private func anyData() -> Data {
@@ -137,9 +146,9 @@ final class RemoteFeedImageDataLoaderTests: XCTestCase {
             messages[index].completion(.failure(error))
         }
         
-        func complete(with statusCode: Int, data: Data, at index: Int = 0) {
+        func complete(withstatusCode code: Int, data: Data, at index: Int = 0) {
             let response = HTTPURLResponse(url: requestUrl[index],
-                                           statusCode: statusCode,
+                                           statusCode: code,
                                            httpVersion: nil,
                                            headerFields: nil)!
             messages[index].completion(.success((data, response)))
