@@ -191,12 +191,16 @@ final class RemoteFeedLoaderTest: XCTestCase {
         
         private var messages = [(urls: URL, complection: (Httpclient.Result) -> Void)]()
         
+        private struct Task: HTTPClientTask {
+            func cancel() {   }
+        }
         var requestUrls :[URL] {
             return messages.map { $0.urls }
         }
         
-        func get(from url: URL, completion: @escaping (Httpclient.Result) -> Void) {
+        func get(from url: URL, completion: @escaping (Httpclient.Result) -> Void) ->  HTTPClientTask {
             messages.append((url, completion))
+            return Task()
         }
         
         func complete(with error:Error,at index:Int = 0) {

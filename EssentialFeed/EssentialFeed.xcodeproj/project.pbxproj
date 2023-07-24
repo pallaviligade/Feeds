@@ -406,16 +406,8 @@
 				8EABA3FE2A5EDA0400F8A362 /* Feed Presentation */,
 				8EB09F1E2A03DFD10019AE31 /* FeedCache */,
 				8EDE08902A0138990063D6CB /* Helpers */,
-				8EABA3FD2A5ED9EF00F8A362 /* Feed API */,
 			);
 			path = EssentialFeedTests;
-			sourceTree = "<group>";
-		};
-		8EABA3FD2A5ED9EF00F8A362 /* Feed API */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Feed API";
 			sourceTree = "<group>";
 		};
 		8EABA3FE2A5EDA0400F8A362 /* Feed Presentation */ = {
