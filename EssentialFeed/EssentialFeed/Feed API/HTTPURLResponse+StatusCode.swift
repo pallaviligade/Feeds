@@ -7,10 +7,10 @@
 
 import Foundation
 
-extension HTTPURLResponse {
-    static var OK_200: Int { return 200 }
-    
-    var isOk: Bool {
-        return statusCode == HTTPURLResponse.OK_200
-    }
-}
+//extension HTTPURLResponse {
+//    static var OK_200: Int { return 200 }
+//    
+//    var isOk: Bool {
+//        return statusCode == HTTPURLResponse.OK_200
+//    }
+//}

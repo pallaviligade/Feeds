@@ -18,34 +18,52 @@ public final class RemoteFeedImageDataLoader {
         httpClient = client
     }
     
-    private struct HTTPTaskWrapper: FeedImaegDataLoaderTask {
-        
-        let wrapped: HTTPClientTask
-        
-        func cancel() {
-            wrapped.cancel()
+    private final class HTTPClientTaskWrapper: FeedImaegDataLoaderTask {
+            private var completion: ((FeedImageDataLoader.Result) -> Void)?
+
+            var wrapped: HTTPClientTask?
+
+            init(_ completion: @escaping (FeedImageDataLoader.Result) -> Void) {
+                self.completion = completion
+            }
+
+            func complete(with result: FeedImageDataLoader.Result) {
+                completion?(result)
+            }
+
+            func cancel() {
+                preventFurtherCompletions()
+                wrapped?.cancel()
+            }
+
+            private func preventFurtherCompletions() {
+                completion = nil
+            }
         }
-        
-    }
     
    public func loadImageData(from url: URL, completion: @escaping (FeedImageDataLoader.Result) -> Void) -> FeedImaegDataLoaderTask {
         
         
-      return HTTPTaskWrapper(wrapped: httpClient.get(from: url) { [weak self] result in
-            guard self != nil else {
-                return
-            }
-            switch result {
-            case let .success((data, response)):
-                if response.statusCode == 200, !data.isEmpty {
-                    completion(.success(data))
-                }else {
-                    completion(.failure(Error.invaildData))
-                }
-            case let .failure(error):
-                completion(.failure(error))
-            }
-        })
-    }
+       let task = HTTPClientTaskWrapper(completion)
+               task.wrapped = httpClient.get(from: url) { [weak self] result in
+                   guard self != nil else { return }
+
+                   task.complete(with: result
+                       .mapError { _ in Error.connectivity }
+                       .flatMap { (data, response) in
+                           let isValidResponse = response.isOk  && !data.isEmpty
+                           return isValidResponse ? .success(data) : .failure(Error.invaildData)
+                       })
+               }
+               return task
+           }
     
+}
+
+extension HTTPURLResponse {
+    static var OK_200: Int { return 200 }
+    
+    var isOk: Bool {
+        return statusCode == HTTPURLResponse.OK_200
+    }
 }
