@@ -6,10 +6,25 @@
 //
 
 import XCTest
+import EssentialFeed
+
+protocol FeedImageDataStore {
+    func retrieve(dataForUrl url: URL)
+}
 
 final class LocalFeedImageDataLoader {
-    init(store: Any) {
-        
+    private struct Task: FeedImageDataLoaderTask {
+            func cancel() {}
+        }
+    private let store: FeedImageDataStore
+    
+    init(store: FeedImageDataStore) {
+        self.store = store
+    }
+    
+    func loadImageData(from url: URL, completionHandler: @escaping (FeedImageDataLoader.Result) -> Void ) -> FeedImageDataLoaderTask {
+        store.retrieve(dataForUrl: url)
+        return Task()
     }
 }
 
@@ -20,8 +35,17 @@ class LocalFeedImageDataLoaderTests: XCTestCase {
         XCTAssertTrue(store.recivedMessage.isEmpty)
     }
     
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut:LocalFeedImageDataLoader, store:FeedStoreSpy) {
-        let store = FeedStoreSpy()
+    func test_loadImageDataFromURL_requestsStoreDataForUrl() {
+        let (sut, store) = makeSUT()
+        let url = anyURL()
+        _ = sut.loadImageData(from: url) { _ in }
+        
+        
+        XCTAssertEqual(store.recivedMessage, [.retrieve(dataForUrl: url)])
+    }
+    
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut:LocalFeedImageDataLoader, store:StoreSpy) {
+        let store = StoreSpy()
         let sut = LocalFeedImageDataLoader(store: store)
         trackForMemoryLeaks(store,file: file,line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -29,8 +53,18 @@ class LocalFeedImageDataLoaderTests: XCTestCase {
         
     }
     
-    private class FeedStoreSpy {
-        var recivedMessage = [Any]()
+    private class StoreSpy: FeedImageDataStore {
+        enum message: Equatable {
+            case retrieve(dataForUrl: URL)
+        }
+        
+        var recivedMessage = [message]()
+        
+        func retrieve(dataForUrl url: URL) {
+            recivedMessage.append(.retrieve(dataForUrl: url))
+        }
+        
+        
     }
     
 }
