@@ -47,10 +47,13 @@ final class LocalFeedImageDataLoader {
     }
     
     func loadImageData(from url: URL, completionHandler: @escaping (FeedImageDataLoader.Result) -> Void ) -> FeedImageDataLoaderTask {
+        
+        
         let task = Task(completion: completionHandler)
         
-        store.retrieve(dataForUrl: url) { result in
-           
+        store.retrieve(dataForUrl: url) { [weak self]  result in
+            guard  self != nil else { return }
+            
             task.complete(with: result
                 .mapError { _ in Error.failed}
                 .flatMap { data in data.map{.success($0)} ?? .failure(Error.notFound) }
@@ -105,15 +108,32 @@ class LocalFeedImageDataLoaderTests: XCTestCase {
     func test_loadImageDataFromUrl_doesNotDeliverResultAfterCancelTask() {
         let (sut, store) = makeSUT()
 
+                                var recivedResult = [FeedImageDataLoader.Result]()
+                                let task = sut.loadImageData(from: anyURL()) { recivedResult.append($0) }
+                                task.cancel()
+                                
+                                store.complete(with: anyData())
+                                store.complete(with: .none)
+                                store.complete(with: anyError())
+                                
+                                XCTAssertTrue(recivedResult.isEmpty, "Expected No Result after canceling all  task")
+    }
+    
+    func test_loadImageDataFromURL_doesNotDeliverResultAfterSUTInstanceHasBeenDeallocated() {
+        let store = StoreSpy()
+        
+        var sut: LocalFeedImageDataLoader? = LocalFeedImageDataLoader(store: store)
         var recivedResult = [FeedImageDataLoader.Result]()
-        let task = sut.loadImageData(from: anyURL()) { recivedResult.append($0) }
-        task.cancel()
         
+        _ = sut?.loadImageData(from: anyURL()) { recivedResult.append($0) }
+        
+        sut = nil
         store.complete(with: anyData())
-        store.complete(with: .none)
-        store.complete(with: anyError())
         
-        XCTAssertTrue(recivedResult.isEmpty, "Expected No Result after canceling all  task")
+        XCTAssertTrue(recivedResult.isEmpty,"expected no  result after instance has been deallocated")
+        
+        
+        
     }
     
     private func notFound() -> FeedImageDataLoader.Result {
