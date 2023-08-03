@@ -9,9 +9,6 @@ import XCTest
 import EssentialFeed
 
 
-
-
-
 class LocalFeedImageDataLoaderTests: XCTestCase {
     func test_initdoesNotMessageStoreUponCreation() {
         let (_, store) = makeSUT()
