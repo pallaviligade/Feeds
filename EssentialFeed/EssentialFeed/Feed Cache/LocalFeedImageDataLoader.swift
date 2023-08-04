@@ -7,14 +7,22 @@
 
 import Foundation
 
-public final class LocalFeedImageDataLoader: FeedImageDataLoader {
+public final class LocalFeedImageDataLoader {
     private let store: FeedImageDataStore
     
     public init(store: FeedImageDataStore) {
         self.store = store
     }
+}
+
+extension LocalFeedImageDataLoader {
     
-    private final class Task: FeedImageDataLoaderTask {
+    public enum loadError: Swift.Error {
+        case failed
+        case notFound
+    }
+    
+    private final class LoadImageDataTask: FeedImageDataLoaderTask {
         
         private var completion: ((FeedImageDataLoader.Result) -> Void)?
         
@@ -22,7 +30,7 @@ public final class LocalFeedImageDataLoader: FeedImageDataLoader {
             self.completion = completion
         }
         
-         func complete(with result: FeedImageDataLoader.Result) {
+        func complete(with result: FeedImageDataLoader.Result) {
             self.completion?(result)
         }
         
@@ -31,34 +39,31 @@ public final class LocalFeedImageDataLoader: FeedImageDataLoader {
         }
         
         private func preventFurtherCompletions() {
-                    completion = nil
+            completion = nil
         }
-        }
-   
-    
-    public enum Error: Swift.Error {
-            case failed
-            case notFound
     }
-    
-    
-    
+        
     public func loadImageData(from url: URL, completionHandler: @escaping (FeedImageDataLoader.Result) -> Void ) -> FeedImageDataLoaderTask {
         
         
-        let task = Task(completion: completionHandler)
+        let task = LoadImageDataTask(completion: completionHandler)
         
         store.retrieve(dataForUrl: url) { [weak self]  result in
             guard  self != nil else { return }
             
             task.complete(with: result
-                .mapError { _ in Error.failed}
-                .flatMap { data in data.map{.success($0)} ?? .failure(Error.notFound) }
+                .mapError { _ in loadError.failed}
+                .flatMap { data in data.map{.success($0)} ?? .failure(loadError.notFound) }
             )
         }
         return task
     }
     
+}
+
+
+
+extension LocalFeedImageDataLoader {
     public typealias SaveResult = Result <Void, Swift.Error>
     
     public func save(from  data: Data, for url: URL, completionHandler:@escaping (SaveResult) -> Void) {
