@@ -36,6 +36,14 @@ final class CacheFeedImageDataUseCaseTests: XCTestCase {
         
     }
     
+    func test_saveImageDataFromURL_succeedsOnSuccessfulStoreInsertion() {
+        let (sut, store) = makeSUT()
+        
+        expect(sut, toCompleteWith: .success(())) {
+            store.completeInsertionSuccessfully()
+        }
+        
+    }
     private func expect(_ sut: LocalFeedImageDataLoader, toCompleteWith ExpectedResult: LocalFeedImageDataLoader.SaveResult, when action: () -> Void, file:StaticString = #file, line: UInt = #line) {
         
         let exp = expectation(description: "wait for load completion")

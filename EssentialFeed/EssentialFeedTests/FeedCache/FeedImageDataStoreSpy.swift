@@ -42,5 +42,9 @@ import EssentialFeed
      func completeInsertion(with error: Error, index: Int = 0) {
          InsertionsCompletions[index](.failure(error))
      }
+     
+     func completeInsertionSuccessfully( index: Int = 0) {
+         InsertionsCompletions[index](.success(()))
+     }
     
 }
