@@ -66,7 +66,7 @@ class LoadFeedImageDataFromCacheUseCaseTests: XCTestCase {
     }
     
     func test_loadImageDataFromURL_doesNotDeliverResultAfterSUTInstanceHasBeenDeallocated() {
-        let store = StoreSpy()
+        let store = FeedImageDataStoreSpy()
         
         var sut: LocalFeedImageDataLoader? = LocalFeedImageDataLoader(store: store)
         var recivedResult = [FeedImageDataLoader.Result]()
@@ -82,14 +82,7 @@ class LoadFeedImageDataFromCacheUseCaseTests: XCTestCase {
         
     }
     
-    func test_saveImageDataForURL_requetsImageDataInsertionForURL() {
-        let (sut, store) = makeSUT()
-        let url = anyURL()
-        let data = anyData()
-        
-        sut.save(from: data, for: url) { _ in  }
-        XCTAssertEqual(store.recivedMessage, [.insert(data: data, url: url)])
-    }
+    
     
     private func notFound() -> FeedImageDataLoader.Result {
         return .failure(LocalFeedImageDataLoader.loadError.notFound)
@@ -118,8 +111,8 @@ class LoadFeedImageDataFromCacheUseCaseTests: XCTestCase {
         wait(for: [exp], timeout: 3.0)
     }
     
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut:LocalFeedImageDataLoader, store:StoreSpy) {
-        let store = StoreSpy()
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut:LocalFeedImageDataLoader, store:FeedImageDataStoreSpy) {
+        let store = FeedImageDataStoreSpy()
         let sut = LocalFeedImageDataLoader(store: store)
         trackForMemoryLeaks(store,file: file,line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -127,35 +120,6 @@ class LoadFeedImageDataFromCacheUseCaseTests: XCTestCase {
         
     }
     
-    private class StoreSpy: FeedImageDataStore {
-        
-        
-        enum message: Equatable {
-            case retrieve(dataForUrl: URL)
-            case insert(data: Data, url: URL)
-        }
-        
-        private var Retrievalcompletions = [(FeedImageDataStore.RetrievalResult) -> Void]()
-        
-        var recivedMessage = [message]()
-        
-        func retrieve(dataForUrl url: URL, completionHandler: @escaping (FeedImageDataStore.RetrievalResult) -> Void) {
-            recivedMessage.append(.retrieve(dataForUrl: url))
-            Retrievalcompletions.append(completionHandler)
-        }
-        
-        func insert(_ data: Data, for url: URL, completionHandler: @escaping (InsertionResult) -> Void) {
-            recivedMessage.append(.insert(data: data, url: url))
-        }
-        
-        func completeRetrieval(with error: Error, index: Int = 0){
-            Retrievalcompletions[index](.failure(error))
-        }
-        
-        func completeRetrieval(with data: Data?, index: Int = 0){
-            Retrievalcompletions[index](.success(data))
-        }
-        
-    }
+    
     
 }
