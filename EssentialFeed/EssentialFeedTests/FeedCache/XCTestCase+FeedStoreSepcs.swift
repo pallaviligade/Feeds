@@ -150,7 +150,7 @@ extension FeedStoreSpec where Self: XCTestCase
     
      func expect(_ sut:FeedStore, toRetive expectedResult:FeedStore.RetrivalsResult ,file: StaticString = #file, line: UInt = #line) {
         let exp = expectation(description: "wait till expectation")
-           sut.retrival { retrievedResult in
+           sut.retrieve { retrievedResult in
                 switch (retrievedResult, expectedResult) {
                 case let (.success(.found(expected)), .success(.found(retrieved))):
                                 XCTAssertEqual(retrieved.feed, expected.feed, file: file, line: line)
