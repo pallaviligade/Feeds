@@ -7,9 +7,9 @@
 
 import Foundation
 
-public class CodableFeedStore: FeedStore {
+public final class CodableFeedStore: FeedStore {
  
-    private struct Cache: Codable {
+    public struct Cache: Codable {
         let item: [CodebaleFeedImage]
         let timespam: Date
        
@@ -19,7 +19,7 @@ public class CodableFeedStore: FeedStore {
        
     }
     
-    private struct CodebaleFeedImage: Codable {
+    public struct CodebaleFeedImage: Codable {
         private  let id: UUID
         private let description: String?
         private let location: String?
@@ -45,7 +45,7 @@ public class CodableFeedStore: FeedStore {
     
     private let queue = DispatchQueue(label: "\(CodableFeedStore.self)Queue", qos: .userInitiated, attributes: .concurrent)
     
-    public func retrival(complectionHandler:@escaping FeedStore.RetrievalCompletion) {
+    public func retrieve(completion complectionHandler:@escaping FeedStore.RetrievalCompletion) {
         let storeURL = self.storeURL
         queue.async {
             guard let data  =  try? Data(contentsOf: storeURL) else { return complectionHandler(.success(.empty)) }
@@ -58,7 +58,7 @@ public class CodableFeedStore: FeedStore {
             }
         }
     }
-    public func insertItem(_ item: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
+    public func insert(_ item: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
         let storeURL = self.storeURL
         queue.async(flags:.barrier) {
             do{

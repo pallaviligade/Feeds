@@ -88,7 +88,7 @@ extension FeedStoreSpec where Self: XCTestCase
             var completedOperationsInOrder = [XCTestExpectation]()
 
             let op1 = expectation(description: "Operation 1")
-            sut.insertItem(uniqueItems().localitems, timestamp: Date()) { _ in
+            sut.insert(uniqueItems().localitems, timestamp: Date()) { _ in
                 completedOperationsInOrder.append(op1)
                 op1.fulfill()
             }
@@ -100,7 +100,7 @@ extension FeedStoreSpec where Self: XCTestCase
             }
 
             let op3 = expectation(description: "Operation 3")
-            sut.insertItem(uniqueItems().localitems, timestamp: Date()) { _ in
+            sut.insert(uniqueItems().localitems, timestamp: Date()) { _ in
                 completedOperationsInOrder.append(op3)
                 op3.fulfill()
             }
@@ -131,7 +131,7 @@ extension FeedStoreSpec where Self: XCTestCase
         let exp = expectation(description: "wait till expections")
         var insertionError: Error?
         
-        sut.insertItem(cache.feed, timestamp: cache.timespam) { result in
+        sut.insert(cache.feed, timestamp: cache.timespam) { result in
             if case let Result.failure(error) = result
             {
                 insertionError = error

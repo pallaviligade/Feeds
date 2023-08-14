@@ -21,7 +21,7 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
     
     func test_validateCache_deleteCacheOnRetrivals() {
         let (sut, store) = makeSUT()
-        sut.validateCahe()
+        sut.validateCache { _ in }
         
         store.completeRetrieval(with: anyError())
         XCTAssertEqual(store.recivedMessages, [.retrival,.deleteCachedFeed])
@@ -31,7 +31,7 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
     func test_validateCache_doesNotDeleteCacheOnEmptyCache() {
         let (sut, store) = makeSUT()
         
-        sut.validateCahe()
+        sut.validateCache { _ in }
         store.completeRetrievalWithEmptyCache()
         
         XCTAssertEqual(store.recivedMessages, [.retrival])
@@ -44,7 +44,7 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
             let lessThanSevenDaysOldTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: 1)
             let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
 
-            sut.validateCahe()
+            sut.validateCache {_ in  }
             store.completeRetrival(with: feed.localitems, timestamp: lessThanSevenDaysOldTimestamp)
 
             XCTAssertEqual(store.recivedMessages, [.retrival])

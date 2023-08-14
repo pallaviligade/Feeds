@@ -39,7 +39,7 @@ class feedStoreSpy: FeedStore {
          deletionCompletions[index](.success(()))
      }
      
-     func insertItem(_ item: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion ) {
+     func insert(_ item: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion ) {
          insertCallCount +=  1
          insertionCompletions.append(completion)
          recivedMessages.append(.insert(item, timestamp))
@@ -52,7 +52,7 @@ class feedStoreSpy: FeedStore {
          insertionCompletions[index](.success(()))
      }
     
-    func retrival(complectionHandler: @escaping RetrievalCompletion) {
+    func retrieve(completion complectionHandler: @escaping RetrievalCompletion) {
         retrivalCompletions.append(complectionHandler)
         recivedMessages.append(.retrival)
     }

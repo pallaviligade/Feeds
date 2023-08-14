@@ -40,7 +40,7 @@ extension LocalFeedLoader {
     }
     private func cache(_  item:[FeedImage],completion:@escaping (saveResult) -> Void)
     {
-        store.insertItem(item.toLocal(), timestamp: self.currentDate()) { [weak self] error in
+        store.insert(item.toLocal(), timestamp: self.currentDate()) { [weak self] error in
             guard self != nil else { return }
             completion(error)
         }
@@ -51,7 +51,7 @@ extension LocalFeedLoader: FeedLoader {
     public typealias loadResult = FeedLoader.Result
     
     public func load(completion completionHandler:@escaping (loadResult) -> Void){
-        store.retrival {[weak self] result in
+        store.retrieve {[weak self] result in
             guard let self = self else { return }
             switch result {
             case let .failure(error):
@@ -67,20 +67,24 @@ extension LocalFeedLoader: FeedLoader {
     }
 }
 extension LocalFeedLoader {
-    public func validateCahe() {
-        store.retrival { [weak self] result in
-            guard let self = self else { return  }
-            switch result {
-            case .failure:
-                self.store.deleteCachedFeed{ _ in  }
-            case let .success(.found(feed: _, timestamp: timespam))  where FeedCachePolicy.validate(timespam,against: self.currentDate()):
-                self.store.deleteCachedFeed { _ in }
-                break
-            case .success: break
+    public typealias ValidationResult = Result<Void, Error>
+    
+        public func validateCache(completion: @escaping (ValidationResult) -> Void) {
+            store.retrieve { [weak self] result in
+                guard let self = self else { return }
+
+                switch result {
+                case .failure:
+                    self.store.deleteCachedFeed(completion: completion)
+print("deleteCachedFeed is need to implement")
+//                case let .success(.some(cache)) where !FeedCachePolicy.validate(cache.timestamp, against: self.currentDate()):
+//                    self.store.deleteCachedFeed(completion: completion)
+
+                case .success:
+                    completion(.success(()))
+                }
             }
         }
-        
-    }
 }
 
 private extension Array where Element == FeedImage {
